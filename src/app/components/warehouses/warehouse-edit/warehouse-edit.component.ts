@@ -1,96 +1,93 @@
+// src/app/components/warehouses/warehouse-edit/warehouse-edit.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WarehouseFormComponent } from '../warehouse-form/warehouse-form.component';
 import { WarehouseService } from '../../../services/warehouse.service';
+import { Warehouse } from '../../../models/warehouse.model';
 
 @Component({
   selector: 'app-warehouse-edit',
   standalone: true,
-  imports: [CommonModule, RouterModule, WarehouseFormComponent],
-  template: `
-    <div class="warehouse-edit-container">
-      <div class="page-header">
-        <button class="back-button" [routerLink]="['/warehouses', warehouseId]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5"></path>
-            <path d="M12 19l-7-7 7-7"></path>
-          </svg>
-          Back to Warehouse Details
-        </button>
-      </div>
-      
-      <div *ngIf="error" class="error-message">
-        {{ error }}
-      </div>
-      
-      <app-warehouse-form 
-        *ngIf="warehouseId && !error"
-        mode="edit" 
-        [warehouseId]="warehouseId">
-      </app-warehouse-form>
-    </div>
-  `,
-  styles: [`
-    @import '../../../../styles/variables';
-    
-    .warehouse-edit-container {
-      width: 100%;
-      max-width: 100%;
-    }
-    
-    .page-header {
-      margin-bottom: 1.5rem;
-    }
-    
-    .back-button {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: none;
-      border: none;
-      color: $primary-color;
-      cursor: pointer;
-      padding: 0.5rem;
-      border-radius: 4px;
-      
-      &:hover {
-        background-color: rgba($primary-color, 0.1);
-      }
-      
-      svg {
-        color: $primary-color;
-      }
-    }
-    
-    .error-message {
-      background-color: #ffebee;
-      color: #e53935;
-      padding: 1rem;
-      border-radius: 4px;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-  `]
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    WarehouseFormComponent
+  ],
+  templateUrl: './warehouse-edit.component.html',
+  styleUrls: ['./warehouse-edit.component.scss']
 })
 export class WarehouseEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private warehouseService = inject(WarehouseService);
   
-  warehouseId: number | null = null;
+  warehouse: Warehouse | null = null;
+  loading = false;
+  loadingWarehouse = true;
   error: string | null = null;
   
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.warehouseId = Number(id);
+      const warehouseId = params.get('id');
+      if (warehouseId) {
+        this.loadWarehouse(Number(warehouseId));
       } else {
         this.error = 'Warehouse ID not provided';
-        setTimeout(() => {
-          this.router.navigate(['/warehouses']);
-        }, 3000);
+        this.loadingWarehouse = false;
       }
     });
+  }
+  
+  loadWarehouse(id: number): void {
+    this.loadingWarehouse = true;
+    this.error = null;
+    
+    this.warehouseService.getWarehouse(id).subscribe({
+      next: (data) => {
+        this.warehouse = data;
+        this.loadingWarehouse = false;
+      },
+      error: (err) => {
+        console.error(`Error loading warehouse with ID ${id}:`, err);
+        this.error = 'Failed to load warehouse details. Please try again later.';
+        this.loadingWarehouse = false;
+      }
+    });
+  }
+  
+  onSubmit(formData: Partial<Warehouse>): void {
+    if (!this.warehouse) return;
+    
+    this.loading = true;
+    this.error = null;
+    
+    // Preserve the stocks array from the original warehouse
+    const updatedWarehouse: Partial<Warehouse> = {
+      ...formData,
+      id: this.warehouse.id,
+      stocks: this.warehouse.stocks
+    };
+    
+    this.warehouseService.updateWarehouse(this.warehouse.id, updatedWarehouse as Required<Warehouse>).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/warehouses', this.warehouse?.id]);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err.message || 'Failed to update warehouse. Please try again.';
+        console.error('Error updating warehouse:', err);
+      }
+    });
+  }
+  
+  onCancel(): void {
+    this.router.navigate(['/warehouses', this.warehouse?.id]);
   }
 }

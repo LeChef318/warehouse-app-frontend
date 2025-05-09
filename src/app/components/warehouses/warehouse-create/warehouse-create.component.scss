@@ -1,0 +1,15 @@
+/* src/app/components/warehouses/warehouse-create/warehouse-create.component.scss */
+.create-container {
+    padding: 16px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin: 0;
+    }
+  }

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Warehouse } from '../models/warehouse.model';
-import { environment } from '../../evironments/environment';
+import { environment } from '../../environments/environment';
 
 export interface WarehouseFormData {
   name: string;

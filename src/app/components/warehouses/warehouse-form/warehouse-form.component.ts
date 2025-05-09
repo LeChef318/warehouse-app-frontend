@@ -1,129 +1,80 @@
-import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
+// src/app/components/warehouses/warehouse-form/warehouse-form.component.ts
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { WarehouseFormData, WarehouseService } from '../../../services/warehouse.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
 import { Warehouse } from '../../../models/warehouse.model';
-import { Router } from '@angular/router';
-import { KeycloakService } from '../../../services/auth/keycloak.service';
 
 @Component({
   selector: 'app-warehouse-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatCardModule
+  ],
   templateUrl: './warehouse-form.component.html',
   styleUrls: ['./warehouse-form.component.scss']
 })
 export class WarehouseFormComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private warehouseService = inject(WarehouseService);
-  private router = inject(Router);
-  private keycloakService = inject(KeycloakService);
-  isManager = false;
+  @Input() warehouse: Warehouse | null = null;
+  @Input() loading = false;
+  @Input() error: string | null = null;
+  @Input() submitButtonText = 'Save';
+  @Input() title = 'Warehouse Form';
   
-  @Input() mode: 'create' | 'edit' = 'create';
-  @Input() warehouseId: number | null = null;
-  @Input() initialData: Partial<WarehouseFormData> | null = null;
-  @Output() formSubmitted = new EventEmitter<Warehouse>();
+  @Output() formSubmit = new EventEmitter<Partial<Warehouse>>();
+  @Output() cancel = new EventEmitter<void>();
   
   warehouseForm!: FormGroup;
-  loading = false;
-  error: string | null = null;
-  submitted = false;
+  
+  constructor(private fb: FormBuilder) {}
   
   ngOnInit(): void {
-    this.isManager = this.keycloakService.isManager();
-    
-    if (!this.isManager) {
-      const message = 'You need manager permissions to perform this action.';
-      this.router.navigateByUrl('/access-denied', { 
-        state: { message }
-      });
-      return;
-    }
-    
     this.initForm();
-    
-    if (this.mode === 'edit' && this.warehouseId && !this.initialData) {
-      this.loadWarehouse(this.warehouseId);
-    }
   }
   
   initForm(): void {
     this.warehouseForm = this.fb.group({
-      name: [this.initialData?.name || '', [Validators.required]],
-      location: [this.initialData?.location || '', [Validators.required]]
-    });
-  }
-  
-  loadWarehouse(id: number): void {
-    this.loading = true;
-    this.warehouseService.getWarehouse(id).subscribe({
-      next: (warehouse) => {
-        this.warehouseForm.patchValue({
-          name: warehouse.name,
-          location: warehouse.location
-        });
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load warehouse data. Please try again.';
-        this.loading = false;
-      }
+      name: [this.warehouse?.name || '', [Validators.required, Validators.maxLength(100)]],
+      location: [this.warehouse?.location || '', [Validators.required, Validators.maxLength(200)]]
     });
   }
   
   onSubmit(): void {
-    this.submitted = true;
-    
     if (this.warehouseForm.invalid) {
+      this.markFormGroupTouched(this.warehouseForm);
       return;
     }
     
-    const formData: WarehouseFormData = this.warehouseForm.value;
-    this.loading = true;
-    this.error = null;
-    
-    if (this.mode === 'create') {
-      this.warehouseService.createWarehouse(formData).subscribe({
-        next: (warehouse) => {
-          this.loading = false;
-          this.formSubmitted.emit(warehouse);
-          this.router.navigate(['/warehouses', warehouse.id]);
-        },
-        error: (err) => {
-          this.error = 'Failed to create warehouse. Please try again.';
-          this.loading = false;
-        }
-      });
-    } else if (this.mode === 'edit' && this.warehouseId) {
-      this.warehouseService.updateWarehouse(this.warehouseId, formData).subscribe({
-        next: (warehouse) => {
-          this.loading = false;
-          this.formSubmitted.emit(warehouse);
-          this.router.navigate(['/warehouses', warehouse.id]);
-        },
-        error: (err) => {
-          this.error = 'Failed to update warehouse. Please try again.';
-          this.loading = false;
-        }
-      });
-    }
+    const formData = this.warehouseForm.value;
+    this.formSubmit.emit(formData);
   }
   
-  cancel(): void {
-    if (this.mode === 'edit' && this.warehouseId) {
-      this.router.navigate(['/warehouses', this.warehouseId]);
-    } else {
-      this.router.navigate(['/warehouses']);
-    }
+  onCancel(): void {
+    this.cancel.emit();
   }
   
-  // Helper methods for form validation
-  get nameControl() { return this.warehouseForm.get('name'); }
-  get locationControl() { return this.warehouseForm.get('location'); }
+  // Helper method to mark all form controls as touched
+  markFormGroupTouched(formGroup: FormGroup): void {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+    });
+  }
   
+  // Form validation helpers
   hasError(controlName: string, errorName: string): boolean {
     const control = this.warehouseForm.get(controlName);
-    return !!(control && control.hasError(errorName) && (control.dirty || control.touched || this.submitted));
+    return !!control && control.hasError(errorName) && control.touched;
   }
 }

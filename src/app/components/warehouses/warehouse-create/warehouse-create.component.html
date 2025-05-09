@@ -1,0 +1,18 @@
+<!-- src/app/components/warehouses/warehouse-create/warehouse-create.component.html -->
+<div class="create-container">
+    <div class="header">
+      <button mat-icon-button color="primary" (click)="onCancel()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="mat-headline-5">Create New Warehouse</h1>
+    </div>
+    
+    <app-warehouse-form
+      [loading]="loading"
+      [error]="error"
+      submitButtonText="Create Warehouse"
+      title="Create New Warehouse"
+      (formSubmit)="onSubmit($event)"
+      (cancel)="onCancel()"
+    ></app-warehouse-form>
+  </div>

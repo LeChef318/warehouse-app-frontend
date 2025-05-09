@@ -83,6 +83,10 @@ export class KeycloakService {
     return null;
   }
 
+  public getUsername(): string {
+    return this.keycloak?.tokenParsed?.['preferred_username'] || '';
+  }
+
   private setupTokenRefresh(): void {
     if (this.keycloak) {
       this.keycloak.onTokenExpired = () => {

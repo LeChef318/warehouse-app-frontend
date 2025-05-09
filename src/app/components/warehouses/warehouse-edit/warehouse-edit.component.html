@@ -1,0 +1,32 @@
+<!-- src/app/components/warehouses/warehouse-edit/warehouse-edit.component.html -->
+<div class="edit-container">
+    <div class="header">
+      <button mat-icon-button color="primary" (click)="onCancel()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="mat-headline-5">Edit Warehouse</h1>
+    </div>
+    
+    <div *ngIf="loadingWarehouse" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading warehouse details...</p>
+    </div>
+    
+    <div *ngIf="!loadingWarehouse && error && !warehouse" class="error-container">
+      <p class="error-message">{{ error }}</p>
+      <button mat-button color="primary" (click)="onCancel()">
+        Back to Warehouses
+      </button>
+    </div>
+    
+    <app-warehouse-form
+      *ngIf="!loadingWarehouse && warehouse"
+      [warehouse]="warehouse"
+      [loading]="loading"
+      [error]="error"
+      submitButtonText="Update Warehouse"
+      title="Edit Warehouse"
+      (formSubmit)="onSubmit($event)"
+      (cancel)="onCancel()"
+    ></app-warehouse-form>
+  </div>

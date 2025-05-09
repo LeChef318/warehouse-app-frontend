@@ -1,49 +1,55 @@
-<div class="warehouse-form-container">
-    <h2 class="form-title">{{ mode === 'create' ? 'Add New Warehouse' : 'Edit Warehouse' }}</h2>
-    
-    <div *ngIf="loading" class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>{{ mode === 'create' ? 'Creating warehouse...' : 'Loading warehouse data...' }}</p>
-    </div>
-    
-    <div *ngIf="error" class="error-message">
-      {{ error }}
-    </div>
-    
-    <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
-      <div class="form-group">
-        <label for="name">Warehouse Name *</label>
-        <input 
-          type="text" 
-          id="name" 
-          formControlName="name" 
-          class="form-control"
-          [class.is-invalid]="hasError('name', 'required')"
-        >
-        <div *ngIf="hasError('name', 'required')" class="error-feedback">
-          Warehouse name is required
-        </div>
+<!-- src/app/components/warehouses/warehouse-form/warehouse-form.component.html -->
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>{{ title }}</mat-card-title>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()" class="warehouse-form">
+      <!-- Error message -->
+      <div *ngIf="error" class="error-message">
+        {{ error }}
       </div>
       
-      <div class="form-group">
-        <label for="location">Location *</label>
-        <input 
-          type="text" 
-          id="location" 
-          formControlName="location" 
-          class="form-control"
-          [class.is-invalid]="hasError('location', 'required')"
-        >
-        <div *ngIf="hasError('location', 'required')" class="error-feedback">
+      <!-- Name field -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Warehouse Name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter warehouse name">
+        <mat-error *ngIf="hasError('name', 'required')">
+          Name is required
+        </mat-error>
+        <mat-error *ngIf="hasError('name', 'maxlength')">
+          Name cannot exceed 100 characters
+        </mat-error>
+      </mat-form-field>
+      
+      <!-- Location field -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Location</mat-label>
+        <input matInput formControlName="location" placeholder="Enter warehouse location">
+        <mat-error *ngIf="hasError('location', 'required')">
           Location is required
-        </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="button" class="cancel-button" (click)="cancel()">Cancel</button>
-        <button type="submit" class="submit-button" [disabled]="loading">
-          {{ mode === 'create' ? 'Create Warehouse' : 'Update Warehouse' }}
-        </button>
-      </div>
+        </mat-error>
+        <mat-error *ngIf="hasError('location', 'maxlength')">
+          Location cannot exceed 200 characters
+        </mat-error>
+      </mat-form-field>
     </form>
-  </div>
+  </mat-card-content>
+  
+  <mat-card-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      type="submit" 
+      [disabled]="loading" 
+      (click)="onSubmit()"
+    >
+      <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+      <span *ngIf="!loading">{{ submitButtonText }}</span>
+    </button>
+  </mat-card-actions>
+</mat-card>
