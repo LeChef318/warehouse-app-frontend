@@ -1,6 +1,15 @@
+// src/app/components/warehouses/warehouse-detail/warehouse-detail.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { WarehouseService } from '../../../services/warehouse.service';
 import { Warehouse, Stock } from '../../../models/warehouse.model';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
@@ -8,7 +17,18 @@ import { KeycloakService } from '../../../services/auth/keycloak.service';
 @Component({
   selector: 'app-warehouse-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule, 
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatTableModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatChipsModule
+  ],
   templateUrl: './warehouse-detail.component.html',
   styleUrls: ['./warehouse-detail.component.scss']
 })
@@ -17,11 +37,14 @@ export class WarehouseDetailComponent implements OnInit {
   private router = inject(Router);
   private warehouseService = inject(WarehouseService);
   private keycloakService = inject(KeycloakService);
-  isManager = false;
   
   warehouse: Warehouse | null = null;
   loading: boolean = true;
   error: string | null = null;
+  isManager = false;
+  
+  // Updated to include productName
+  displayedColumns: string[] = ['productName', 'quantity', 'actions'];
   
   ngOnInit(): void {
     this.isManager = this.keycloakService.isManager();
@@ -61,5 +84,15 @@ export class WarehouseDetailComponent implements OnInit {
   
   goBack(): void {
     this.router.navigate(['/warehouses']);
+  }
+  
+  editWarehouse(): void {
+    if (this.isManager) {
+      this.router.navigate(['/warehouses', this.warehouse?.id, 'edit']);
+    } else {
+      this.router.navigate(['/access-denied'], {
+        queryParams: { message: 'You need manager permissions to edit warehouses.' }
+      });
+    }
   }
 }

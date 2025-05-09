@@ -1,25 +1,22 @@
-<header class="app-header">
-  <div class="header-container">
-    <div class="header-left">
-      <button class="mobile-menu-button" (click)="onToggleSidebar()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-      <h1 class="page-title">{{ pageTitle }}</h1>
-    </div>
-    <div class="header-right">
-      <div class="user-info">
-        <div class="user-avatar">
-          {{ username.charAt(0).toUpperCase() }}
-        </div>
-        <div class="user-details">
-          <span class="username">{{ username }}</span>
-          <button class="logout-button" (click)="logout()">Logout</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
+<!-- src/app/components/header/header.component.html -->
+<mat-toolbar color="primary" class="header">
+  <button mat-icon-button (click)="onToggleSidebar()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  
+  <span class="app-title">Warehouse Management</span>
+  
+  <span class="spacer"></span>
+  
+  <button mat-button [matMenuTriggerFor]="userMenu">
+    <mat-icon>account_circle</mat-icon>
+    <span class="username">{{ keycloakService.getUserInfo()?.preferred_username || 'User' }}</span>
+  </button>
+  
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
