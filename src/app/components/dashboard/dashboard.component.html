@@ -1,0 +1,93 @@
+<!-- src/app/components/dashboard/dashboard.component.html -->
+<div class="dashboard-container">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon warehouse-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21V8l9-4 9 4v13"></path>
+          <path d="M13 13h4v8H7v-8h4"></path>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalWarehouses }}</span>
+        <span class="stat-label">Warehouses</span>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon product-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalProductTypes }}</span>
+        <span class="stat-label">Product Types</span>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon inventory-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalItems }}</span>
+        <span class="stat-label">Total Items</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="dashboard-card user-card">
+      <h2>User Information</h2>
+      <div class="user-details">
+        <p><strong>Name:</strong> {{ userInfo?.name || 'N/A' }}</p>
+        <p><strong>Email:</strong> {{ userInfo?.email || 'N/A' }}</p>
+        <p><strong>Username:</strong> {{ userInfo?.preferred_username || 'N/A' }}</p>
+      </div>
+    </div>
+    
+    <div class="dashboard-card recent-warehouses">
+      <div class="card-header">
+        <h2>Recent Warehouses</h2>
+        <a routerLink="/warehouses" class="view-all">View All</a>
+      </div>
+      
+      <div *ngIf="loading" class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <p>Loading warehouses...</p>
+      </div>
+      
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+      
+      <div *ngIf="!loading && !error && warehouses.length === 0" class="empty-state">
+        <p>No warehouses found.</p>
+        <a routerLink="/warehouses" class="add-warehouse-link">Add Your First Warehouse</a>
+      </div>
+      
+      <ul *ngIf="!loading && !error && warehouses.length > 0" class="warehouse-list">
+        <li *ngFor="let warehouse of warehouses.slice(0, 3)" class="warehouse-item" [routerLink]="['/warehouses', warehouse.id]">
+          <div class="warehouse-info">
+            <h3>{{ warehouse.name }}</h3>
+            <p>{{ warehouse.location }}</p>
+          </div>
+          <div class="warehouse-stats">
+            <div class="stats-row">
+              <span class="stat-label">Products:</span>
+              <span class="stat-value">{{ getProductCount(warehouse) }}</span>
+            </div>
+            <div class="stats-row">
+              <span class="stat-label">Total Items:</span>
+              <span class="stat-value">{{ getTotalQuantity(warehouse) }}</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

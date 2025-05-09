@@ -1,0 +1,61 @@
+<div class="warehouse-list-container">
+  <div class="warehouse-header">
+    <h2>Warehouses</h2>
+    <button *ngIf="isManager" class="add-button" routerLink="/warehouses/create">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Add Warehouse
+    </button>
+  </div>
+  
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading warehouses...</p>
+    </div>
+  
+    <div *ngIf="error" class="error-container">
+      <p class="error-message">{{ error }}</p>
+      <button class="retry-button" (click)="loadWarehouses()">Try Again</button>
+    </div>
+  
+    <div *ngIf="!loading && !error" class="warehouse-grid">
+      <div class="warehouse-card" *ngFor="let warehouse of warehouses" [routerLink]="['/warehouses', warehouse.id]">
+        <div class="warehouse-card-header">
+          <h3>{{ warehouse.name }}</h3>
+        </div>
+        
+        <div class="warehouse-card-body">
+          <div class="warehouse-info">
+            <p><strong>Location:</strong> {{ warehouse.location }}</p>
+            <p><strong>Product Types:</strong> {{ getProductCount(warehouse) }}</p>
+            <p><strong>Total Items:</strong> {{ getTotalQuantity(warehouse) }}</p>
+          </div>
+          
+          <div class="stocks-preview" *ngIf="warehouse.stocks.length > 0">
+            <h4>Stock Preview</h4>
+            <ul class="stocks-list">
+              <li *ngFor="let stock of warehouse.stocks.slice(0, 3)" class="stock-item">
+                <span class="product-name">{{ stock.productName }}</span>
+                <span class="product-quantity">{{ stock.quantity }}</span>
+              </li>
+              <li *ngIf="warehouse.stocks.length > 3" class="more-items">
+                + {{ warehouse.stocks.length - 3 }} more items
+              </li>
+            </ul>
+          </div>
+          
+          <div class="empty-stocks" *ngIf="warehouse.stocks.length === 0">
+            <p>No products in this warehouse</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div *ngIf="!loading && !error && warehouses.length === 0" class="empty-state">
+      <p>No warehouses found.</p>
+      <button *ngIf="isManager" class="add-button" routerLink="/warehouses/create">Add Your First Warehouse</button>
+      <p *ngIf="!isManager" class="permission-message">Contact a manager to add warehouses.</p>
+    </div>
+  </div>

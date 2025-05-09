@@ -1,0 +1,111 @@
+<div class="warehouse-detail-container">
+    <div class="detail-header">
+      <button class="back-button" (click)="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        Back to Warehouses
+      </button>
+      
+      <div class="header-actions">
+        <button *ngIf="isManager" class="edit-button" [routerLink]="['/warehouses', warehouse?.id, 'edit']">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit
+        </button>
+      </div>
+    </div>
+  
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading warehouse details...</p>
+    </div>
+  
+    <div *ngIf="error" class="error-container">
+      <p class="error-message">{{ error }}</p>
+      <button class="retry-button" (click)="loadWarehouse(warehouse?.id || 0)">Try Again</button>
+    </div>
+  
+    <div *ngIf="!loading && !error && warehouse" class="warehouse-info-container">
+      <div class="warehouse-info-card">
+        <h2 class="warehouse-name">{{ warehouse.name }}</h2>
+        <div class="warehouse-details">
+          <div class="detail-item">
+            <span class="detail-label">Location:</span>
+            <span class="detail-value">{{ warehouse.location }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Product Types:</span>
+            <span class="detail-value">{{ warehouse.stocks.length }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Total Items:</span>
+            <span class="detail-value">{{ getTotalQuantity() }}</span>
+          </div>
+        </div>
+      </div>
+  
+      <div class="stocks-container">
+        <div class="stocks-header">
+          <h3>Stock Items</h3>
+          <button *ngIf="isManager" class="add-stock-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Stock
+          </button>
+        </div>
+  
+        <div *ngIf="warehouse.stocks.length === 0" class="empty-stocks">
+          <p>No stock items found in this warehouse.</p>
+          <button *ngIf="isManager" class="add-stock-button">Add Your First Stock Item</button>
+          <p *ngIf="!isManager" class="permission-message">Contact a manager to add stock items.</p>
+        </div>
+  
+        <div *ngIf="warehouse.stocks.length > 0" class="stocks-table-container">
+          <table class="stocks-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let stock of warehouse.stocks">
+                <td>{{ stock.id }}</td>
+                <td>{{ stock.productId }}</td>
+                <td>{{ stock.productName }}</td>
+                <td>{{ stock.quantity }}</td>
+                <td class="actions-cell">
+                  <div *ngIf="isManager" class="action-buttons">
+                    <button class="action-button edit-action">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button class="action-button delete-action">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </button>
+                  </div>
+                  <span *ngIf="!isManager" class="no-actions">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,117 @@
+@import '../../../../styles/variables';
+
+.app-header {
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  max-width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-button {
+  display: none;
+  background: none;
+  border: none;
+  color: $text-color;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+.page-title {
+  color: $text-color;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: $primary-color;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.username {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-color;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: $primary-color;
+  padding: 0;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0.75rem 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.25rem;
+  }
+  
+  .user-details {
+    display: none;
+  }
+  
+  .user-info {
+    gap: 0;
+  }
+}
