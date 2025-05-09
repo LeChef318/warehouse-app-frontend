@@ -13,7 +13,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
   
   // If not authenticated, try to refresh the token
-  return keycloakService.updateToken().then(refreshed => {
+  return keycloakService.refreshToken().then(refreshed => {
     if (refreshed) {
       return true;
     } else if (keycloakService.isAuthenticated()) {
