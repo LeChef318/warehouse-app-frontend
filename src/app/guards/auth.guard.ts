@@ -1,30 +1,41 @@
 // src/app/guards/auth.guard.ts
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { CanActivate, CanActivateChild, Router, UrlTree } from '@angular/router';
 import { KeycloakService } from '../services/auth/keycloak.service';
+import { Observable, from, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  const keycloakService = inject(KeycloakService);
-  const router = inject(Router);
-  
-  // Check if the user is authenticated
-  if (keycloakService.isAuthenticated()) {
-    return true;
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanActivate, CanActivateChild {
+
+  constructor(
+    private keycloakService: KeycloakService,
+    private router: Router
+  ) {}
+
+  canActivate(): Observable<boolean | UrlTree> {
+    return this.checkAuthentication();
   }
-  
-  // If not authenticated, try to refresh the token
-  return keycloakService.refreshToken().then(refreshed => {
-    if (refreshed) {
-      return true;
-    } else if (keycloakService.isAuthenticated()) {
-      return true;
-    } else {
-      // If still not authenticated, redirect to login
-      router.navigate(['/login']);
-      return false;
+
+  canActivateChild(): Observable<boolean | UrlTree> {
+    return this.checkAuthentication();
+  }
+
+  private checkAuthentication(): Observable<boolean | UrlTree> {
+    if (this.keycloakService.isAuthenticatedSync()) {
+      return of(true);
     }
-  }).catch(() => {
-    router.navigate(['/login']);
-    return false;
-  });
-};
+  
+    return from(this.keycloakService.refreshToken()).pipe(
+      switchMap((refreshed) => {
+        if (refreshed || this.keycloakService.isAuthenticatedSync()) {
+          return of(true);
+        }
+        return of(this.router.createUrlTree(['/login']));
+      }),
+      catchError(() => of(this.router.createUrlTree(['/login'])))
+    );
+  }
+}

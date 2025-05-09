@@ -8,13 +8,12 @@ import { WarehouseCreateComponent } from './components/warehouses/warehouse-crea
 import { WarehouseEditComponent } from './components/warehouses/warehouse-edit/warehouse-edit.component';
 import { AccessDeniedComponent } from './components/shared/access-denied/access-denied.component';
 import { LayoutComponent } from './components/layout/layout.component';
-import { authGuard } from './guards/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { managerGuard } from './guards/manager.guard';
 import { ProductListComponent } from './components/products/product-list/product-list.component';
 // import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 // import { ProductCreateComponent } from './components/products/product-create/product-create.component';
 // import { ProductEditComponent } from './components/products/product-edit/product-edit.component';
-// Import category components when they're created
 // import { CategoryListComponent } from './components/categories/category-list/category-list.component';
 // import { CategoryCreateComponent } from './components/categories/category-create/category-create.component';
 // import { CategoryEditComponent } from './components/categories/category-edit/category-edit.component';
@@ -23,7 +22,8 @@ export const routes: Routes = [
   { 
     path: '', 
     component: LayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },

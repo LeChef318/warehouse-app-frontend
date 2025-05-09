@@ -55,6 +55,10 @@ export class KeycloakService {
     return this.authenticated.asObservable();
   }
 
+  public isAuthenticatedSync(): boolean {
+    return this.authenticated.getValue();
+  }
+
   public isInitializing(): Observable<boolean> {
     return this.initializing.asObservable();
   }
@@ -97,17 +101,16 @@ export class KeycloakService {
     }
   }
 
-  async refreshToken(): Promise<string> {
+  async refreshToken(): Promise<boolean> {
     try {
       const refreshed = await this.keycloak?.updateToken(30);
       if (refreshed) {
         console.log('Token refreshed');
       }
-      return this.keycloak?.token as string || '';
+      return !!this.keycloak?.token;
     } catch (error) {
       console.error('Failed to refresh token', error);
-      this.keycloak?.login();
-      return '';
+      return false;
     }
   }
 
