@@ -6,11 +6,9 @@ import { from, switchMap } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const keycloakService = inject(KeycloakService);
-  
-  // Only add the token for API requests, not for Keycloak auth requests
+
   if (req.url.includes('/api/')) {
-    // Use refreshToken to ensure we have a valid token
-    return from(keycloakService.refreshToken()).pipe(
+    return from(keycloakService.getValidToken()).pipe(
       switchMap(token => {
         if (token) {
           const authReq = req.clone({
@@ -22,6 +20,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       })
     );
   }
-  
+
   return next(req);
 };

@@ -114,6 +114,16 @@ export class KeycloakService {
     }
   }
 
+  public async getValidToken(): Promise<string | null> {
+    try {
+      await this.keycloak?.updateToken(30);
+      return this.keycloak?.token ?? null;
+    } catch (error) {
+      console.error('Token refresh failed', error);
+      return null;
+    }
+  }
+
   getUserRoles(): string[] {
     if (this.keycloak && this.keycloak.authenticated) {
       const realmRoles = this.keycloak.realmAccess?.roles || [];
