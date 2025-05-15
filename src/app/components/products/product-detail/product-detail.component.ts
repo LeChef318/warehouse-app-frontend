@@ -1,15 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
-import { ProductService } from '../../../services/product.service';
+import { ProductService, Product } from '../../../services/product.service';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
-import { Product } from '../../../models/product.model';
 
 @Component({
   selector: 'app-product-detail',
@@ -17,9 +16,9 @@ import { Product } from '../../../models/product.model';
   imports: [
     CommonModule,
     RouterModule,
-    MatCardModule,
-    MatIconModule,
     MatButtonModule,
+    MatIconModule,
+    MatCardModule,
     MatProgressSpinnerModule,
     MatTableModule,
     MatChipsModule
@@ -31,20 +30,12 @@ export class ProductDetailComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
-  keycloakService = inject(KeycloakService);
+  public keycloakService = inject(KeycloakService);
   
   product: Product | null = null;
   loading = false;
   error: string | null = null;
-  
-  // Table columns for stock information
-  displayedColumns: string[] = ['warehouse', 'quantity', 'actions'];
-  
-  constructor() {
-    if (!this.keycloakService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-    }
-  }
+  displayedColumns = ['warehouse', 'quantity', 'actions'];
   
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -66,18 +57,18 @@ export class ProductDetailComponent implements OnInit {
     });
   }
   
+  onBack(): void {
+    this.router.navigate(['/products']);
+  }
+  
   onEdit(): void {
-    if (this.product) {
-      this.router.navigate(['/products', this.product.id, 'edit']);
-    }
+    this.router.navigate(['/products', this.product?.id, 'edit']);
   }
   
   onDelete(): void {
-    if (!this.product) return;
-    
     if (confirm('Are you sure you want to delete this product?')) {
       this.loading = true;
-      this.productService.deleteProduct(this.product.id).subscribe({
+      this.productService.deleteProduct(this.product!.id).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/products']);
@@ -88,9 +79,5 @@ export class ProductDetailComponent implements OnInit {
         }
       });
     }
-  }
-  
-  onBack(): void {
-    this.router.navigate(['/products']);
   }
 } 

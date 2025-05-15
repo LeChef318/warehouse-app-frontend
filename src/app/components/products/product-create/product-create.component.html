@@ -1,0 +1,23 @@
+<!-- src/app/components/products/product-create/product-create.component.html -->
+<div class="product-create-container">
+  <div class="page-header">
+    <button mat-button class="back-button" routerLink="/products">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Products
+    </button>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <app-product-form 
+    *ngIf="!error"
+    title="Create New Product"
+    submitButtonText="Create Product"
+    [loading]="loading"
+    [error]="error"
+    (productSubmit)="onSubmit($event)"
+    (cancelRequest)="onCancel()"
+  ></app-product-form>
+</div> 

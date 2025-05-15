@@ -1,11 +1,15 @@
 <!-- src/app/components/warehouses/warehouse-list/warehouse-list.component.html -->
-<div class="warehouse-container">
-  <div class="warehouse-header">
-    <h1 class="mat-headline-5">Warehouses</h1>
+<div class="warehouse-list-container">
+  <div class="page-header">
+    <h1>Warehouses</h1>
     <button *ngIf="isManager" mat-raised-button color="primary" (click)="createWarehouse()">
       <mat-icon>add</mat-icon>
       Add Warehouse
     </button>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
   </div>
 
   <div *ngIf="loading" class="loading-container">
@@ -13,66 +17,62 @@
     <p>Loading warehouses...</p>
   </div>
 
-  <div *ngIf="error" class="error-container">
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <p class="error-message">{{ error }}</p>
-        <button mat-button color="primary" (click)="loadWarehouses()">Try Again</button>
-      </mat-card-content>
-    </mat-card>
+  <div *ngIf="!loading && !error && warehouses.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">warehouse</mat-icon>
+    <p>No warehouses found</p>
+    <button *ngIf="isManager" mat-raised-button color="primary" (click)="createWarehouse()">
+      <mat-icon>add</mat-icon>
+      Add Your First Warehouse
+    </button>
   </div>
 
-  <div *ngIf="!loading && !error">
-    <div *ngIf="warehouses.length === 0" class="empty-state">
-      <mat-icon class="empty-icon">store</mat-icon>
-      <p>No warehouses found</p>
-      <button *ngIf="isManager" mat-raised-button color="primary" (click)="createWarehouse()">
-        Add Your First Warehouse
-      </button>
-      <p *ngIf="!isManager" class="permission-note">Contact a manager to add warehouses.</p>
-    </div>
+  <div *ngIf="!loading && !error && warehouses.length > 0" class="table-container">
+    <table mat-table [dataSource]="warehouses" class="warehouse-table">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let warehouse">
+          <div class="warehouse-cell">
+            <span class="warehouse-name">{{ warehouse.name }}</span>
+            <span class="warehouse-location">{{ warehouse.location }}</span>
+          </div>
+        </td>
+      </ng-container>
 
-    <div *ngIf="warehouses.length > 0">
-      <table mat-table [dataSource]="warehouses" class="warehouse-table">
-        <!-- Name Column -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let warehouse">{{ warehouse.name }}</td>
-        </ng-container>
+      <!-- Location Column -->
+      <ng-container matColumnDef="location">
+        <th mat-header-cell *matHeaderCellDef>Location</th>
+        <td mat-cell *matCellDef="let warehouse">{{ warehouse.location }}</td>
+      </ng-container>
 
-        <!-- Location Column -->
-        <ng-container matColumnDef="location">
-          <th mat-header-cell *matHeaderCellDef>Location</th>
-          <td mat-cell *matCellDef="let warehouse">{{ warehouse.location }}</td>
-        </ng-container>
-
-        <!-- Products Column -->
-        <ng-container matColumnDef="products">
-          <th mat-header-cell *matHeaderCellDef>Products</th>
-          <td mat-cell *matCellDef="let warehouse">
+      <!-- Stock Count Column -->
+      <ng-container matColumnDef="stockCount">
+        <th mat-header-cell *matHeaderCellDef>Stock</th>
+        <td mat-cell *matCellDef="let warehouse">
+          <span class="stock-count">{{ getStockCount(warehouse) }}</span>
+          <span class="stock-details">
             {{ getProductCount(warehouse) }} products
             ({{ getTotalQuantity(warehouse) }} items)
-          </td>
-        </ng-container>
+          </span>
+        </td>
+      </ng-container>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let warehouse">
-            <button mat-icon-button color="primary" (click)="viewWarehouseDetails(warehouse.id)">
-              <mat-icon>visibility</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let warehouse">
+          <button 
+            mat-icon-button 
+            color="primary" 
+            (click)="viewWarehouseDetails(warehouse.id)"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr 
-          mat-row 
-          *matRowDef="let row; columns: displayedColumns;"
-          (click)="viewWarehouseDetails(row.id)"
-          class="warehouse-row"
-        ></tr>
-      </table>
-    </div>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
   </div>
 </div>

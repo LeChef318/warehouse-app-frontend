@@ -1,0 +1,24 @@
+<!-- src/app/components/products/product-edit/product-edit.component.html -->
+<div class="product-edit-container">
+  <div class="page-header">
+    <button mat-button class="back-button" routerLink="/products">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Products
+    </button>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <app-product-form 
+    *ngIf="!error"
+    title="Edit Product"
+    submitButtonText="Update Product"
+    [product]="product"
+    [loading]="loading"
+    [error]="error"
+    (productSubmit)="onSubmit($event)"
+    (cancelRequest)="onCancel()"
+  ></app-product-form>
+</div> 

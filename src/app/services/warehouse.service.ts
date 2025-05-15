@@ -1,5 +1,5 @@
 // src/app/services/warehouse.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Warehouse } from '../models/warehouse.model';

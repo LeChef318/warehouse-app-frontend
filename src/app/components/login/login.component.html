@@ -1,9 +1,30 @@
 <div class="login-container">
-    <div class="login-card">
-      <h1>Welcome to Dashboard</h1>
-      <p>Please log in to access your dashboard</p>
-      <button class="login-button" (click)="login()">
-        Login with Keycloak
-      </button>
-    </div>
-  </div>
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Warehouse Management</mat-card-title>
+      <mat-card-subtitle>Please log in to continue</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="login-content">
+        <img src="assets/logo.png" alt="Logo" class="logo">
+        <p>Welcome to the Warehouse Management System. Please log in to access the application.</p>
+      </div>
+    </mat-card-content>
+    
+    <mat-card-actions>
+      <div class="actions-container">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="login()" 
+          [disabled]="loading"
+        >
+          <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!loading">login</mat-icon>
+          <span *ngIf="!loading">Log In</span>
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</div>

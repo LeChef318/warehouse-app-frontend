@@ -1,13 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { KeycloakService } from './services/auth/keycloak.service';
 import { RouteTrackerService } from './services/route-tracker.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

@@ -1,22 +1,22 @@
 // src/app/components/products/product-list/product-list.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatTableModule, MatTable } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormsModule } from '@angular/forms';
-import { ProductService } from '../../../services/product.service';
-import { Product } from '../../../models/product.model';
+import { ProductService, Product } from '../../../services/product.service';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
@@ -25,45 +25,48 @@ import { KeycloakService } from '../../../services/auth/keycloak.service';
     CommonModule,
     RouterModule,
     FormsModule,
-    MatCardModule,
+    MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,
+    MatProgressSpinnerModule,
     MatSortModule,
     MatPaginatorModule,
-    MatInputModule,
-    MatFormFieldModule,
     MatChipsModule,
-    MatProgressSpinnerModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatTooltipModule
   ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
+  @ViewChild(MatTable) table!: MatTable<Product>;
+  
   private productService = inject(ProductService);
-  private router = inject(Router);
   private keycloakService = inject(KeycloakService);
+  private router = inject(Router);
   
   products: Product[] = [];
   filteredProducts: Product[] = [];
-  loading = true;
+  sortedData: Product[] = [];
+  displayedColumns: string[] = ['name', 'category', 'price', 'stock', 'actions'];
+  loading = false;
   error: string | null = null;
   isManager = false;
   
-  // For search and filtering
-  searchTerm = '';
+  // Search and Filter
+  searchTerm: string = '';
   
-  // For sorting
-  sortedData: Product[] = [];
-  
-  // For pagination
+  // Pagination
+  totalItems = 0;
   pageSize = 10;
-  pageSizeOptions = [5, 10, 25, 50];
+  currentPage = 0;
+  pageSizeOptions = [5, 10, 25, 100];
   pageIndex = 0;
   
-  // Table columns
-  displayedColumns: string[] = ['name', 'category', 'price', 'stock', 'actions'];
+  // Sorting
+  currentSort: Sort = { active: 'name', direction: 'asc' };
   
   ngOnInit(): void {
     this.isManager = this.keycloakService.isManager();
@@ -74,108 +77,85 @@ export class ProductListComponent implements OnInit {
     this.loading = true;
     this.error = null;
     
-    this.productService.getProducts().subscribe({
-      next: (data) => {
-        this.products = data;
+    this.productService.getProducts(
+      this.currentPage + 1,
+      this.pageSize,
+      this.currentSort.active,
+      this.currentSort.direction as 'asc' | 'desc'
+    ).subscribe({
+      next: (response) => {
+        this.products = response.items;
         this.filteredProducts = [...this.products];
-        this.sortedData = [...this.filteredProducts];
-        this.applyPagination();
+        this.sortedData = [...this.products];
+        this.totalItems = response.total;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading products:', err);
-        this.error = 'Failed to load products. Please try again later.';
+        this.error = 'Failed to load products. Please try again.';
         this.loading = false;
       }
     });
   }
   
   applyFilter(): void {
-    const searchTermLower = this.searchTerm.toLowerCase();
-    
     this.filteredProducts = this.products.filter(product => 
-      product.name.toLowerCase().includes(searchTermLower) ||
-      product.description.toLowerCase().includes(searchTermLower) ||
-      product.categoryName.toLowerCase().includes(searchTermLower)
+      product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
-    
     this.sortedData = [...this.filteredProducts];
-    this.pageIndex = 0;
-    this.applyPagination();
   }
   
-  sortData(sort: Sort): void {
+  sortData(event: Sort): void {
+    this.currentSort = event;
     const data = [...this.filteredProducts];
-    
-    if (!sort.active || sort.direction === '') {
+    if (!event.active || event.direction === '') {
       this.sortedData = data;
-      this.applyPagination();
       return;
     }
-    
+
     this.sortedData = data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
+      const isAsc = event.direction === 'asc';
+      switch (event.active) {
         case 'name': return this.compare(a.name, b.name, isAsc);
-        case 'category': return this.compare(a.categoryName, b.categoryName, isAsc);
         case 'price': return this.compare(a.price, b.price, isAsc);
-        case 'stock': return this.compare(this.getTotalStock(a), this.getTotalStock(b), isAsc);
         default: return 0;
       }
     });
-    
-    this.applyPagination();
   }
-  
-  compare(a: number | string, b: number | string, isAsc: boolean): number {
+
+  private compare(a: any, b: any, isAsc: boolean): number {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
   
-  handlePageEvent(event: PageEvent): void {
-    this.pageSize = event.pageSize;
-    this.pageIndex = event.pageIndex;
-    this.applyPagination();
-  }
-  
-  applyPagination(): void {
-    // This would normally be done on the server side
-    // For client-side, we're just slicing the data
-  }
-  
   getTotalStock(product: Product): number {
-    return product.stocks.reduce((sum, stock) => sum + stock.quantity, 0);
+    // Since stock is not part of the Product interface, return 0 for now
+    return 0;
   }
   
-  viewProductDetails(id: number): void {
+  viewProductDetails(id: string): void {
     this.router.navigate(['/products', id]);
   }
   
-  editProduct(id: number, event: Event): void {
+  editProduct(id: string, event: Event): void {
     event.stopPropagation();
-    
-    if (this.isManager) {
-      this.router.navigate(['/products', id, 'edit']);
-    } else {
-      this.router.navigate(['/access-denied'], {
-        queryParams: { message: 'You need manager permissions to edit products.' }
-      });
-    }
+    this.router.navigate(['/products', id, 'edit']);
   }
   
-  createProduct(): void {
-    if (this.isManager) {
-      this.router.navigate(['/products/create']);
-    } else {
-      this.router.navigate(['/access-denied'], {
-        queryParams: { message: 'You need manager permissions to create products.' }
-      });
-    }
+  handlePageEvent(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex;
+    this.loadProducts();
   }
   
   formatPrice(price: number): string {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('de-CH', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'CHF'
     }).format(price);
+  }
+
+  createProduct(): void {
+    this.router.navigate(['/products/new']);
   }
 }

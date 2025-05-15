@@ -88,7 +88,7 @@ export class DashboardComponent implements OnInit {
     // Load products
     this.productService.getProducts().subscribe({
       next: (products) => {
-        this.productCount = products.length;
+        this.productCount = products.items.length;
       },
       error: (err: Error) => {
         console.error('Failed to load products:', err);

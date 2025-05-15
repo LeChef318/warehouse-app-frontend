@@ -1,0 +1,22 @@
+/* src/app/components/products/product-edit/product-edit.component.scss */
+.product-edit-container {
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-message {
+  color: #f44336;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+} 

@@ -6,21 +6,25 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WarehouseService } from '../../../services/warehouse.service';
-import { Warehouse } from '../../../models/warehouse.model';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
+import { Warehouse } from '../../../models/warehouse.model';
 
 @Component({
   selector: 'app-warehouse-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    MatCardModule, 
-    MatButtonModule, 
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
     MatIconModule,
     MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
     MatProgressSpinnerModule
   ],
   templateUrl: './warehouse-list.component.html',
@@ -28,14 +32,15 @@ import { KeycloakService } from '../../../services/auth/keycloak.service';
 })
 export class WarehouseListComponent implements OnInit {
   private warehouseService = inject(WarehouseService);
-  private keycloakService = inject(KeycloakService);
   private router = inject(Router);
-  
+  private keycloakService = inject(KeycloakService);
+
   warehouses: Warehouse[] = [];
   loading = true;
   error: string | null = null;
   isManager = false;
-  displayedColumns: string[] = ['name', 'location', 'products', 'actions'];
+
+  displayedColumns: string[] = ['name', 'location', 'stockCount', 'actions'];
 
   ngOnInit(): void {
     this.isManager = this.keycloakService.isManager();
@@ -45,14 +50,15 @@ export class WarehouseListComponent implements OnInit {
   loadWarehouses(): void {
     this.loading = true;
     this.error = null;
-    
+
     this.warehouseService.getWarehouses().subscribe({
       next: (data) => {
         this.warehouses = data;
         this.loading = false;
       },
       error: (err) => {
-        this.error = err.message;
+        console.error('Error loading warehouses:', err);
+        this.error = 'Failed to load warehouses. Please try again later.';
         this.loading = false;
       }
     });
@@ -70,6 +76,10 @@ export class WarehouseListComponent implements OnInit {
 
   viewWarehouseDetails(id: number): void {
     this.router.navigate(['/warehouses', id]);
+  }
+
+  getStockCount(warehouse: Warehouse): number {
+    return warehouse.stocks.reduce((sum, stock) => sum + stock.quantity, 0);
   }
 
   getProductCount(warehouse: Warehouse): number {
