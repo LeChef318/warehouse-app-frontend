@@ -1,21 +1,23 @@
 // src/app/guards/manager.guard.ts
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
 import { KeycloakService } from '../services/auth/keycloak.service';
 
-export const managerGuard: CanActivateFn = () => {
-  const keycloakService = inject(KeycloakService);
-  const router = inject(Router);
-  
-  if (keycloakService.isManager()) {
-    return true;
+@Injectable({
+  providedIn: 'root'
+})
+export class ManagerGuard implements CanActivate {
+  constructor(
+    private keycloakService: KeycloakService,
+    private router: Router
+  ) {}
+
+  canActivate(): boolean {
+    if (this.keycloakService.isManager()) {
+      return true;
+    }
+    
+    this.keycloakService.redirectToAccessDenied('You need manager permissions to access this page.');
+    return false;
   }
-  
-  // Redirect to access-denied page with a custom message
-  console.log('Redirecting to access-denied');
-  router.navigate(['/access-denied'], { 
-    state: { message: 'You need manager permissions to access this page.' }
-  });
-  
-  return false;
-};
+}

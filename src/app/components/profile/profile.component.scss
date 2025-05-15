@@ -1,0 +1,63 @@
+.profile-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+}
+
+.error-container {
+  margin: 16px 0;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 16px;
+}
+
+.profile-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    position: relative;
+  }
+
+  .edit-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.profile-info {
+  padding: 16px 0;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.label {
+  font-weight: 500;
+  min-width: 100px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.value {
+  flex: 1;
+}
+
+.roles-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+} 

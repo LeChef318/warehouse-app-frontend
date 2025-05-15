@@ -55,6 +55,12 @@ export class StockDialogComponent {
         ...(this.data.mode === 'transfer' ? [Validators.max(this.data.currentQuantity || 0)] : [])
       ]]
     });
+
+    // Only require toWarehouseId for transfer mode
+    if (this.data.mode === 'create') {
+      this.stockForm.get('toWarehouseId')?.clearValidators();
+      this.stockForm.get('toWarehouseId')?.updateValueAndValidity();
+    }
   }
 
   onSubmit(): void {
@@ -70,7 +76,7 @@ export class StockDialogComponent {
     if (this.data.mode === 'create') {
       this.stockService.createStock({
         productId: this.data.productId!,
-        warehouseId: formValue.warehouseId,
+        warehouseId: Number(formValue.warehouseId),
         quantity: formValue.quantity
       }).subscribe({
         next: (stock) => {
@@ -86,12 +92,15 @@ export class StockDialogComponent {
       this.stockService.transferStock({
         productId: this.data.productId!,
         sourceWarehouseId: this.data.warehouseId!,
-        targetWarehouseId: formValue.toWarehouseId,
+        targetWarehouseId: Number(formValue.toWarehouseId),
         quantity: formValue.quantity
       }).subscribe({
-        next: (stock) => {
+        next: () => {
           this.loading = false;
-          this.dialogRef.close(stock);
+          this.dialogRef.close({
+            quantity: formValue.quantity,
+            targetWarehouseId: Number(formValue.toWarehouseId)
+          });
         },
         error: () => {
           this.loading = false;

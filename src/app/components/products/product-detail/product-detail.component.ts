@@ -15,12 +15,7 @@ import { KeycloakService } from '../../../services/auth/keycloak.service';
 import { WarehouseService } from '../../../services/warehouse.service';
 import { StockDialogComponent } from '../../shared/stock-dialog/stock-dialog.component';
 import { EditStockDialogComponent } from '../../warehouses/warehouse-detail/edit-stock-dialog/edit-stock-dialog.component';
-
-interface Stock {
-  id: number;
-  quantity: number;
-  warehouseId: string;
-}
+import { Stock } from '../../../models/stock.model';
 
 @Component({
   selector: 'app-product-detail',
@@ -130,16 +125,60 @@ export class ProductDetailComponent implements OnInit {
           width: '400px',
           data: {
             mode: 'transfer',
-            stockId: stock.id,
+            productId: this.product?.id,
+            warehouseId: stock.warehouseId,
             currentQuantity: stock.quantity,
-            warehouses: warehouses.filter(w => w.id !== stock.warehouseId)
+            warehouses: warehouses.filter(w => w.id !== stock.warehouseId.toString())
           }
         });
 
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
-            this.snackBar.open('Stock transferred successfully', 'Close', { duration: 3000 });
-            this.loadProduct();
+            this.loading = true;
+            // First, update the local stock data to reflect the transfer
+            if (this.product) {
+              const sourceStock = this.product.stocks.find(s => s.warehouseId === stock.warehouseId);
+              if (sourceStock) {
+                sourceStock.quantity -= result.quantity;
+                // Remove the stock entry if quantity becomes 0
+                if (sourceStock.quantity <= 0) {
+                  this.product.stocks = this.product.stocks.filter(s => s.warehouseId !== stock.warehouseId);
+                }
+              }
+
+              // Add or update the target warehouse stock
+              const targetStock = this.product.stocks.find(s => s.warehouseId === result.targetWarehouseId);
+              if (targetStock) {
+                targetStock.quantity += result.quantity;
+              } else {
+                // Find the warehouse name for the new stock entry
+                const targetWarehouse = warehouses.find(w => w.id === result.targetWarehouseId.toString());
+                if (targetWarehouse) {
+                  this.product.stocks.push({
+                    id: 0, // This will be updated by the server
+                    productId: this.product.id,
+                    productName: this.product.name,
+                    warehouseId: result.targetWarehouseId,
+                    warehouseName: targetWarehouse.name,
+                    quantity: result.quantity
+                  });
+                }
+              }
+            }
+            
+            // Then refresh from server to ensure consistency
+            this.productService.getProduct(this.product!.id).subscribe({
+              next: (updatedProduct) => {
+                this.product = updatedProduct;
+                this.loading = false;
+                this.snackBar.open('Stock transferred successfully', 'Close', { duration: 3000 });
+              },
+              error: () => {
+                this.loading = false;
+                this.error = 'Failed to refresh product details. Please try again.';
+                this.snackBar.open('Stock transferred but failed to refresh view', 'Close', { duration: 3000 });
+              }
+            });
           }
         });
       },

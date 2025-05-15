@@ -1,0 +1,67 @@
+<div class="profile-container">
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading profile...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <p class="error-message">{{ error }}</p>
+        <button mat-button color="primary" (click)="loadProfile()">
+          <mat-icon>refresh</mat-icon>
+          Try Again
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!loading && !error && profile" class="profile-content">
+    <!-- User Info Card -->
+    <mat-card class="profile-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>person</mat-icon>
+        <mat-card-title>User Profile</mat-card-title>
+        <mat-card-subtitle>Your account information</mat-card-subtitle>
+        <button 
+          *ngIf="!isEditing"
+          mat-icon-button 
+          color="primary" 
+          class="edit-button"
+          (click)="startEditing()"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="!isEditing" class="profile-info">
+          <div class="info-row">
+            <span class="label">Name:</span>
+            <span class="value">{{ profile.firstname }} {{ profile.lastname }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Username:</span>
+            <span class="value">{{ profile.username }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Role:</span>
+            <div class="roles-container">
+              <mat-chip color="primary" selected>
+                {{ profile.role }}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+
+        <app-profile-edit-form
+          *ngIf="isEditing"
+          [profile]="profile"
+          [loading]="loading"
+          (save)="saveProfile($event)"
+          (cancel)="cancelEditing()"
+        ></app-profile-edit-form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div> 

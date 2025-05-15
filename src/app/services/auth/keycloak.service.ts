@@ -16,6 +16,7 @@ export class KeycloakService {
   private routeTracker = inject(RouteTrackerService);
   public async init(): Promise<boolean> {
     try {
+      console.log('Keycloak initialization started');
       this.keycloak = new Keycloak(keycloakConfig);
       
       const authenticated = await this.keycloak.init({
@@ -25,12 +26,20 @@ export class KeycloakService {
         checkLoginIframe: false
       });
       
+      console.log('Keycloak authentication status:', authenticated);
       this.authenticated.next(authenticated);
       
       if (authenticated) {
         this.setupTokenRefresh();
-        const redirectPath = this.routeTracker.getLastRoute() || '/';
-        this.router.navigateByUrl(redirectPath);
+        const redirectPath = this.routeTracker.getLastRoute();
+        console.log('Last route from storage:', redirectPath);
+        if (redirectPath) {
+          console.log('Attempting to redirect to:', redirectPath);
+          await this.router.navigateByUrl(redirectPath);
+        } else {
+          console.log('No last route found, redirecting to default path');
+          await this.router.navigateByUrl('/');
+        }
       }
       
       return authenticated;
@@ -73,7 +82,14 @@ export class KeycloakService {
           .then(() => {
             resolve(this.keycloak!.token as string);
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error('Token refresh failed with error:', error);
+            console.log('Current token status:', {
+              token: this.keycloak?.token ? 'present' : 'missing',
+              refreshToken: this.keycloak?.refreshToken ? 'present' : 'missing',
+              tokenParsed: this.keycloak?.tokenParsed,
+              authenticated: this.keycloak?.authenticated
+            });
             this.login();
             reject('Failed to refresh token');
           });
