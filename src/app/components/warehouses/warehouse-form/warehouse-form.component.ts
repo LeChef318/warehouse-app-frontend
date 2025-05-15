@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { Warehouse } from '../../../models/warehouse.model';
+import { WarehouseFormData } from '../../../services/warehouse.service';
 
 @Component({
   selector: 'app-warehouse-form',
@@ -33,8 +34,8 @@ export class WarehouseFormComponent implements OnInit {
   @Input() submitButtonText = 'Save';
   @Input() title = 'Warehouse Form';
   
-  @Output() formSubmit = new EventEmitter<Partial<Warehouse>>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() formSubmit = new EventEmitter<WarehouseFormData>();
+  @Output() cancelRequest = new EventEmitter<void>();
   
   warehouseForm!: FormGroup;
   
@@ -57,12 +58,12 @@ export class WarehouseFormComponent implements OnInit {
       return;
     }
     
-    const formData = this.warehouseForm.value;
+    const formData: WarehouseFormData = this.warehouseForm.value;
     this.formSubmit.emit(formData);
   }
   
   onCancel(): void {
-    this.cancel.emit();
+    this.cancelRequest.emit();
   }
   
   // Helper method to mark all form controls as touched

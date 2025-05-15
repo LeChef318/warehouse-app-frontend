@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import Keycloak from 'keycloak-js';
 import { keycloakConfig } from '../../config/keycloak.config';
+import { RouteTrackerService } from '../route-tracker.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class KeycloakService {
   private authenticated = new BehaviorSubject<boolean>(false);
   private initializing = new BehaviorSubject<boolean>(true);
   private router = inject(Router);
-
+  private routeTracker = inject(RouteTrackerService);
   public async init(): Promise<boolean> {
     try {
       this.keycloak = new Keycloak(keycloakConfig);
@@ -28,6 +29,8 @@ export class KeycloakService {
       
       if (authenticated) {
         this.setupTokenRefresh();
+        const redirectPath = this.routeTracker.getLastRoute() || '/';
+        this.router.navigateByUrl(redirectPath);
       }
       
       return authenticated;
@@ -80,7 +83,7 @@ export class KeycloakService {
     });
   }
 
-  public getUserInfo(): any {
+  public getUserInfo(): Record<string, unknown> | null {
     if (this.keycloak && this.keycloak.tokenParsed) {
       return this.keycloak.tokenParsed;
     }
@@ -141,9 +144,8 @@ export class KeycloakService {
     return this.hasRole('MANAGER');
   }
 
-  redirectToAccessDenied(message: string = 'You do not have permission to access this page.'): void {
-    const router = inject(Router);
-    router.navigateByUrl('/access-denied', { 
+  redirectToAccessDenied(message = 'You do not have permission to access this page.'): void {
+    this.router.navigateByUrl('/access-denied', { 
       state: { message }
     });
   }

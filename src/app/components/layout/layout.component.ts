@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from "@angular/core"
+import { Component, ViewChild, inject, OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { RouterOutlet } from "@angular/router"
 import { MatSidenavModule, type MatSidenav } from "@angular/material/sidenav"
@@ -25,7 +25,7 @@ import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout"
   templateUrl: "./layout.component.html",
   styleUrls: ["./layout.component.scss"],
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   @ViewChild("drawer") drawer!: MatSidenav
 
   private breakpointObserver = inject(BreakpointObserver)

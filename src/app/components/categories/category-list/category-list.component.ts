@@ -15,7 +15,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
-
 import { CategoryService } from '../../../services/category.service';
 import { Category } from '../../../models/category.model';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
@@ -53,7 +52,7 @@ export class CategoryListComponent implements OnInit {
 
   categories: Category[] = [];
   filteredCategories: Category[] = [];
-  displayedColumns: string[] = ['name', 'description', 'actions'];
+  displayedColumns: string[] = ['name', 'actions'];
   loading = true;
   error: string | null = null;
   isManager = false;
@@ -98,8 +97,7 @@ export class CategoryListComponent implements OnInit {
     const searchTermLower = this.searchTerm.toLowerCase();
     
     this.filteredCategories = this.categories.filter(category => 
-      category.name.toLowerCase().includes(searchTermLower) ||
-      (category.description && category.description.toLowerCase().includes(searchTermLower))
+      category.name.toLowerCase().includes(searchTermLower)
     );
     
     this.sortedData = [...this.filteredCategories];
@@ -120,10 +118,6 @@ export class CategoryListComponent implements OnInit {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
         case 'name': return this.compare(a.name, b.name, isAsc);
-        case 'description': 
-          const descA = a.description || '';
-          const descB = b.description || '';
-          return this.compare(descA, descB, isAsc);
         default: return 0;
       }
     });

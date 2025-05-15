@@ -1,128 +1,122 @@
 <!-- src/app/components/categories/category-list/category-list.component.html -->
 <div class="category-list-container">
-    <!-- Header with actions -->
-    <div class="category-header">
-      <h1 class="mat-headline-5">Categories</h1>
-      <button 
-        *ngIf="isManager" 
-        mat-raised-button 
-        color="primary" 
-        (click)="createCategory()"
-      >
-        <mat-icon>add</mat-icon>
-        Add Category
-      </button>
-    </div>
-    
-    <!-- Search and filter -->
-    <mat-card class="filter-card">
+  <!-- Header with actions -->
+  <div class="category-header">
+    <h1 class="mat-headline-5">Categories</h1>
+    <button 
+      *ngIf="isManager" 
+      mat-raised-button 
+      color="primary" 
+      (click)="createCategory()"
+    >
+      <mat-icon>add</mat-icon>
+      Add Category
+    </button>
+  </div>
+  
+  <!-- Search and filter -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Categories</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="searchTerm" 
+          (keyup)="applyFilter()" 
+          placeholder="Search by name"
+        >
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+  
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading categories...</p>
+  </div>
+  
+  <!-- Error state -->
+  <div *ngIf="error" class="error-container">
+    <mat-card appearance="outlined">
       <mat-card-content>
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search Categories</mat-label>
-          <input 
-            matInput 
-            [(ngModel)]="searchTerm" 
-            (keyup)="applyFilter()" 
-            placeholder="Search by name or description"
-          >
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+        <p class="error-message">{{ error }}</p>
+        <button mat-button color="primary" (click)="loadCategories()">
+          <mat-icon>refresh</mat-icon>
+          Try Again
+        </button>
       </mat-card-content>
     </mat-card>
-    
-    <!-- Loading state -->
-    <div *ngIf="loading" class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading categories...</p>
-    </div>
-    
-    <!-- Error state -->
-    <div *ngIf="error" class="error-container">
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <p class="error-message">{{ error }}</p>
-          <button mat-button color="primary" (click)="loadCategories()">
-            <mat-icon>refresh</mat-icon>
-            Try Again
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    
-    <!-- Empty state -->
-    <div *ngIf="!loading && !error && filteredCategories.length === 0" class="empty-state">
-      <mat-icon class="empty-icon">category</mat-icon>
-      <p>No categories found</p>
-      <button *ngIf="isManager" mat-raised-button color="primary" (click)="createCategory()">
-        <mat-icon>add</mat-icon>
-        Add Your First Category
-      </button>
-      <p *ngIf="searchTerm" class="search-note">
-        Try adjusting your search criteria
-        <button mat-button color="primary" (click)="searchTerm = ''; applyFilter()">
-          Clear Search
-        </button>
-      </p>
-    </div>
-    
-    <!-- Categories table -->
-    <div *ngIf="!loading && !error && filteredCategories.length > 0" class="table-container">
-      <table mat-table [dataSource]="sortedData" matSort (matSortChange)="sortData($event)" class="category-table">
-        
-        <!-- Name Column -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-          <td mat-cell *matCellDef="let category">{{ category.name }}</td>
-        </ng-container>
-        
-        <!-- Description Column -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
-          <td mat-cell *matCellDef="let category">{{ category.description || 'No description' }}</td>
-        </ng-container>
-        
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let category">
-            <button 
-              *ngIf="isManager"
-              mat-icon-button 
-              color="primary" 
-              matTooltip="Edit category"
-              (click)="editCategory(category.id, $event)"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            
-            <button 
-              *ngIf="isManager"
-              mat-icon-button 
-              color="warn" 
-              matTooltip="Delete category"
-              (click)="deleteCategory(category.id, $event)"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-        
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr 
-          mat-row 
-          *matRowDef="let row; columns: displayedColumns;"
-          class="category-row"
-        ></tr>
-      </table>
-      
-      <!-- Pagination -->
-      <mat-paginator
-        [length]="filteredCategories.length"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions"
-        [pageIndex]="pageIndex"
-        (page)="handlePageEvent($event)"
-        aria-label="Select page of categories"
-      ></mat-paginator>
-    </div>
   </div>
+  
+  <!-- Empty state -->
+  <div *ngIf="!loading && !error && filteredCategories.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">category</mat-icon>
+    <p>No categories found</p>
+    <button *ngIf="isManager" mat-raised-button color="primary" (click)="createCategory()">
+      <mat-icon>add</mat-icon>
+      Add Your First Category
+    </button>
+    <p *ngIf="searchTerm" class="search-note">
+      Try adjusting your search criteria
+      <button mat-button color="primary" (click)="searchTerm = ''; applyFilter()">
+        Clear Search
+      </button>
+    </p>
+  </div>
+  
+  <!-- Categories table -->
+  <div *ngIf="!loading && !error && filteredCategories.length > 0" class="table-container">
+    <table mat-table [dataSource]="sortedData" matSort (matSortChange)="sortData($event)" class="category-table">
+      
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let category">{{ category.name }}</td>
+      </ng-container>
+      
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let category">
+          <button 
+            *ngIf="isManager"
+            mat-icon-button 
+            color="primary" 
+            matTooltip="Edit category"
+            (click)="editCategory(category.id, $event)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          
+          <button 
+            *ngIf="isManager"
+            mat-icon-button 
+            color="warn" 
+            matTooltip="Delete category"
+            (click)="deleteCategory(category.id, $event)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr 
+        mat-row 
+        *matRowDef="let row; columns: displayedColumns;"
+        class="category-row"
+      ></tr>
+    </table>
+    
+    <!-- Pagination -->
+    <mat-paginator
+      [length]="filteredCategories.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="pageIndex"
+      (page)="handlePageEvent($event)"
+      aria-label="Select page of categories"
+    ></mat-paginator>
+  </div>
+</div>

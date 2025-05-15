@@ -1,11 +1,12 @@
 // src/app/components/warehouses/warehouse-create/warehouse-create.component.ts
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { WarehouseFormComponent } from '../warehouse-form/warehouse-form.component';
-import { WarehouseService } from '../../../services/warehouse.service';
+import { WarehouseService, WarehouseFormData } from '../../../services/warehouse.service';
+import { KeycloakService } from '../../../services/auth/keycloak.service';
 import { Warehouse } from '../../../models/warehouse.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { Warehouse } from '../../../models/warehouse.model';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatIconModule,
     MatButtonModule,
     WarehouseFormComponent
@@ -21,31 +23,33 @@ import { Warehouse } from '../../../models/warehouse.model';
   styleUrls: ['./warehouse-create.component.scss']
 })
 export class WarehouseCreateComponent {
-  private warehouseService = inject(WarehouseService);
   private router = inject(Router);
+  private warehouseService = inject(WarehouseService);
+  private keycloakService = inject(KeycloakService);
   
   loading = false;
   error: string | null = null;
   
-  onSubmit(formData: Partial<Warehouse>): void {
+  constructor() {
+    if (!this.keycloakService.isManager()) {
+      this.router.navigate(['/access-denied'], {
+        queryParams: { message: 'You need manager permissions to create warehouses.' }
+      });
+    }
+  }
+  
+  onSubmit(formData: WarehouseFormData): void {
     this.loading = true;
     this.error = null;
     
-    // Create a new warehouse with empty stocks array
-    const newWarehouse: Partial<Warehouse> = {
-      ...formData,
-      stocks: []
-    };
-    
-    this.warehouseService.createWarehouse(newWarehouse as Required<Warehouse>).subscribe({
-      next: (createdWarehouse) => {
+    this.warehouseService.createWarehouse(formData).subscribe({
+      next: (warehouse) => {
         this.loading = false;
-        this.router.navigate(['/warehouses', createdWarehouse.id]);
+        this.router.navigate(['/warehouses', warehouse.id]);
       },
       error: (err) => {
+        this.error = 'Failed to create warehouse. Please try again.';
         this.loading = false;
-        this.error = err.message || 'Failed to create warehouse. Please try again.';
-        console.error('Error creating warehouse:', err);
       }
     });
   }

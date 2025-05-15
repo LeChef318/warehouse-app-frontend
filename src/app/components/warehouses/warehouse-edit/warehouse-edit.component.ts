@@ -1,12 +1,15 @@
 // src/app/components/warehouses/warehouse-edit/warehouse-edit.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { WarehouseFormComponent } from '../warehouse-form/warehouse-form.component';
-import { WarehouseService } from '../../../services/warehouse.service';
+import { WarehouseService, WarehouseFormData } from '../../../services/warehouse.service';
+import { KeycloakService } from '../../../services/auth/keycloak.service';
 import { Warehouse } from '../../../models/warehouse.model';
 
 @Component({
@@ -14,75 +17,70 @@ import { Warehouse } from '../../../models/warehouse.model';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatCardModule,
+    MatTooltipModule,
     WarehouseFormComponent
   ],
   templateUrl: './warehouse-edit.component.html',
   styleUrls: ['./warehouse-edit.component.scss']
 })
 export class WarehouseEditComponent implements OnInit {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private warehouseService = inject(WarehouseService);
+  private keycloakService = inject(KeycloakService);
   
   warehouse: Warehouse | null = null;
-  loading = false;
   loadingWarehouse = true;
+  submitting = false;
   error: string | null = null;
   
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const warehouseId = params.get('id');
-      if (warehouseId) {
-        this.loadWarehouse(Number(warehouseId));
-      } else {
-        this.error = 'Warehouse ID not provided';
-        this.loadingWarehouse = false;
-      }
-    });
+  constructor() {
+    if (!this.keycloakService.isManager()) {
+      this.router.navigate(['/access-denied'], {
+        queryParams: { message: 'You need manager permissions to edit warehouses.' }
+      });
+    }
   }
   
-  loadWarehouse(id: number): void {
-    this.loadingWarehouse = true;
-    this.error = null;
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.router.navigate(['/warehouses']);
+      return;
+    }
     
-    this.warehouseService.getWarehouse(id).subscribe({
-      next: (data) => {
-        this.warehouse = data;
+    this.loadingWarehouse = true;
+    this.warehouseService.getWarehouse(Number(id)).subscribe({
+      next: (warehouse) => {
+        this.warehouse = warehouse;
         this.loadingWarehouse = false;
       },
       error: (err) => {
-        console.error(`Error loading warehouse with ID ${id}:`, err);
-        this.error = 'Failed to load warehouse details. Please try again later.';
+        this.error = 'Failed to load warehouse. Please try again.';
         this.loadingWarehouse = false;
       }
     });
   }
   
-  onSubmit(formData: Partial<Warehouse>): void {
+  onSubmit(formData: WarehouseFormData): void {
     if (!this.warehouse) return;
     
-    this.loading = true;
+    this.submitting = true;
     this.error = null;
     
-    // Preserve the stocks array from the original warehouse
-    const updatedWarehouse: Partial<Warehouse> = {
-      ...formData,
-      id: this.warehouse.id,
-      stocks: this.warehouse.stocks
-    };
-    
-    this.warehouseService.updateWarehouse(this.warehouse.id, updatedWarehouse as Required<Warehouse>).subscribe({
-      next: () => {
-        this.loading = false;
-        this.router.navigate(['/warehouses', this.warehouse?.id]);
+    this.warehouseService.updateWarehouse(this.warehouse.id, formData).subscribe({
+      next: (warehouse) => {
+        this.submitting = false;
+        this.router.navigate(['/warehouses', warehouse.id]);
       },
       error: (err) => {
-        this.loading = false;
-        this.error = err.message || 'Failed to update warehouse. Please try again.';
-        console.error('Error updating warehouse:', err);
+        this.error = 'Failed to update warehouse. Please try again.';
+        this.submitting = false;
       }
     });
   }

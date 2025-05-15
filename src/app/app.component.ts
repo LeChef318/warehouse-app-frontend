@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { KeycloakService } from './services/auth/keycloak.service';
+import { RouteTrackerService } from './services/route-tracker.service';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,8 @@ import { KeycloakService } from './services/auth/keycloak.service';
 export class AppComponent implements OnInit {
   private keycloakService = inject(KeycloakService);
   loading = true;
+  constructor(private routeTracker: RouteTrackerService) {
+  }
   
   async ngOnInit(): Promise<void> {
     try {

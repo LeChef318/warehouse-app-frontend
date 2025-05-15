@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { WarehouseService } from '../../../services/warehouse.service';
-import { Warehouse, Stock } from '../../../models/warehouse.model';
+import { Warehouse } from '../../../models/warehouse.model';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
 
 @Component({
@@ -39,7 +39,7 @@ export class WarehouseDetailComponent implements OnInit {
   private keycloakService = inject(KeycloakService);
   
   warehouse: Warehouse | null = null;
-  loading: boolean = true;
+  loading = true;
   error: string | null = null;
   isManager = false;
   

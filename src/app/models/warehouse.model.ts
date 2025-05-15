@@ -11,3 +11,8 @@ export interface Stock {
     location: string;
     stocks: Stock[];
   }
+
+  export interface WarehouseFormData {
+    name: string;
+    location: string;
+  }

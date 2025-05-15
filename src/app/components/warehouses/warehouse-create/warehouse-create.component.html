@@ -1,18 +1,26 @@
 <!-- src/app/components/warehouses/warehouse-create/warehouse-create.component.html -->
-<div class="create-container">
-    <div class="header">
-      <button mat-icon-button color="primary" (click)="onCancel()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h1 class="mat-headline-5">Create New Warehouse</h1>
-    </div>
-    
-    <app-warehouse-form
-      [loading]="loading"
-      [error]="error"
-      submitButtonText="Create Warehouse"
-      title="Create New Warehouse"
-      (formSubmit)="onSubmit($event)"
-      (cancel)="onCancel()"
-    ></app-warehouse-form>
+<div class="warehouse-create-container">
+  <div class="page-header">
+    <button class="back-button" routerLink="/warehouses">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
+      Back to Warehouses
+    </button>
   </div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <app-warehouse-form 
+    *ngIf="!error"
+    title="Add New Warehouse"
+    submitButtonText="Create Warehouse"
+    [loading]="loading"
+    [error]="error"
+    (formSubmit)="onSubmit($event)"
+    (cancelRequest)="onCancel()"
+  ></app-warehouse-form>
+</div>

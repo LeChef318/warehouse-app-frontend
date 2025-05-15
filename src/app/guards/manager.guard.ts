@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { KeycloakService } from '../services/auth/keycloak.service';
 
-export const managerGuard: CanActivateFn = (route, state) => {
+export const managerGuard: CanActivateFn = () => {
   const keycloakService = inject(KeycloakService);
   const router = inject(Router);
   

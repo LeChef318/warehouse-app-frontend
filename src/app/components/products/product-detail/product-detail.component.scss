@@ -1,0 +1,97 @@
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+.product-detail-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.error-message {
+  color: #e53935;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 16px;
+  
+  p {
+    color: #757575;
+  }
+}
+
+.product-content {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr;
+  
+  @media (min-width: 960px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detail-card, .stock-card {
+  height: fit-content;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+  
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .label {
+      font-weight: 500;
+      color: #616161;
+      min-width: 100px;
+    }
+    
+    .value {
+      color: #212121;
+    }
+  }
+}
+
+.stock-table {
+  width: 100%;
+  
+  .mat-column-actions {
+    width: 80px;
+    text-align: center;
+  }
+  
+  .low-stock {
+    color: #f57c00;
+    font-weight: 500;
+  }
+}
+
+mat-card-actions {
+  padding: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+} 

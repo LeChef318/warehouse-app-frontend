@@ -20,7 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrls: ['./access-denied.component.scss']
 })
 export class AccessDeniedComponent implements OnInit {
-  message: string = 'You do not have permission to access this page.';
+  message = 'You do not have permission to access this page.';
   
   constructor(
     private route: ActivatedRoute,

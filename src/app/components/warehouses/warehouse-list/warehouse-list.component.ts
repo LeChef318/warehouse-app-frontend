@@ -32,7 +32,7 @@ export class WarehouseListComponent implements OnInit {
   private router = inject(Router);
   
   warehouses: Warehouse[] = [];
-  loading: boolean = true;
+  loading = true;
   error: string | null = null;
   isManager = false;
   displayedColumns: string[] = ['name', 'location', 'products', 'actions'];
