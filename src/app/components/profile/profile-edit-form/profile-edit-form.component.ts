@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,11 +21,11 @@ import { UserProfile, UserUpdate } from '../../../models/user.model';
   templateUrl: './profile-edit-form.component.html',
   styleUrls: ['./profile-edit-form.component.scss']
 })
-export class ProfileEditFormComponent {
+export class ProfileEditFormComponent implements OnChanges {
   @Input() profile: UserProfile | null = null;
   @Input() loading = false;
-  @Output() save = new EventEmitter<UserUpdate>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() saveProfile = new EventEmitter<UserUpdate>();
+  @Output() cancelEdit = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   form: FormGroup;
@@ -117,11 +117,11 @@ export class ProfileEditFormComponent {
         update.lastname = this.form.get('lastname')?.value;
       }
 
-      this.save.emit(update);
+      this.saveProfile.emit(update);
     }
   }
 
   onCancel(): void {
-    this.cancel.emit();
+    this.cancelEdit.emit();
   }
 } 

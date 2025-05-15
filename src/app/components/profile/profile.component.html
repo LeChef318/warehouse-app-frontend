@@ -58,8 +58,8 @@
           *ngIf="isEditing"
           [profile]="profile"
           [loading]="loading"
-          (save)="saveProfile($event)"
-          (cancel)="cancelEditing()"
+          (saveProfile)="saveProfile($event)"
+          (cancelEdit)="cancelEditing()"
         ></app-profile-edit-form>
       </mat-card-content>
     </mat-card>

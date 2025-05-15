@@ -17,6 +17,7 @@ export class KeycloakService {
   public async init(): Promise<boolean> {
     try {
       console.log('Keycloak initialization started');
+      this.initializing.next(true);
       this.keycloak = new Keycloak(keycloakConfig);
       
       const authenticated = await this.keycloak.init({
@@ -29,36 +30,44 @@ export class KeycloakService {
       console.log('Keycloak authentication status:', authenticated);
       this.authenticated.next(authenticated);
       
+      this.initializing.next(false);
+      
       if (authenticated) {
         this.setupTokenRefresh();
         const redirectPath = this.routeTracker.getLastRoute();
         console.log('Last route from storage:', redirectPath);
-        if (redirectPath) {
+        if (redirectPath && redirectPath !== '/login') {
           console.log('Attempting to redirect to:', redirectPath);
           await this.router.navigateByUrl(redirectPath);
         } else {
-          console.log('No last route found, redirecting to default path');
-          await this.router.navigateByUrl('/');
+          console.log('No valid last route found, redirecting to dashboard');
+          await this.router.navigateByUrl('/dashboard');
         }
+      } else {
+        console.log('User not authenticated, redirecting to login');
+        await this.router.navigateByUrl('/login');
       }
       
       return authenticated;
     } catch (error) {
       console.error('Failed to initialize Keycloak', error);
-      return false;
-    } finally {
+      this.authenticated.next(false);
       this.initializing.next(false);
+      await this.router.navigateByUrl('/login');
+      return false;
     }
   }
 
   public login(): void {
     if (this.keycloak) {
+      this.routeTracker.clearLastRoute();
       this.keycloak.login();
     }
   }
 
   public logout(): void {
     if (this.keycloak) {
+      this.routeTracker.clearLastRoute();
       this.keycloak.logout({ redirectUri: window.location.origin + '/login' });
     }
   }
@@ -121,24 +130,59 @@ export class KeycloakService {
   }
 
   async refreshToken(): Promise<boolean> {
+    if (!this.keycloak) {
+      console.warn('Cannot refresh token: Keycloak instance not initialized');
+      return false;
+    }
+
+    if (!this.keycloak.authenticated) {
+      console.warn('Cannot refresh token: User is not authenticated');
+      return false;
+    }
+
     try {
-      const refreshed = await this.keycloak?.updateToken(30);
+      console.log('Attempting to refresh token...');
+      const refreshed = await this.keycloak.updateToken(30);
+      console.log('Token refresh result:', refreshed);
+      
       if (refreshed) {
-        console.log('Token refreshed');
+        console.log('Token refreshed successfully');
+      } else {
+        console.log('Token was still valid, no refresh needed');
       }
-      return !!this.keycloak?.token;
+      
+      return !!this.keycloak.token;
     } catch (error) {
-      console.error('Failed to refresh token', error);
+      console.error('Failed to refresh token:', error);
+      console.log('Current token status:', {
+        token: this.keycloak.token ? 'present' : 'missing',
+        refreshToken: this.keycloak.refreshToken ? 'present' : 'missing',
+        tokenParsed: this.keycloak.tokenParsed,
+        authenticated: this.keycloak.authenticated
+      });
       return false;
     }
   }
 
   public async getValidToken(): Promise<string | null> {
+    if (!this.keycloak) {
+      console.warn('Cannot get valid token: Keycloak instance not initialized');
+      return null;
+    }
+
+    if (!this.keycloak.authenticated) {
+      console.warn('Cannot get valid token: User is not authenticated');
+      return null;
+    }
+
     try {
-      await this.keycloak?.updateToken(30);
-      return this.keycloak?.token ?? null;
+      console.log('Attempting to update token...');
+      await this.keycloak.updateToken(30);
+      const token = this.keycloak.token;
+      console.log('Token status:', token ? 'present' : 'missing');
+      return token ?? null;
     } catch (error) {
-      console.error('Token refresh failed', error);
+      console.error('Token refresh failed:', error);
       return null;
     }
   }

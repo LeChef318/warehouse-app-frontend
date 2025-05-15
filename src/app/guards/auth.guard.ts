@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CanActivate, CanActivateChild, Router, UrlTree } from '@angular/router';
 import { KeycloakService } from '../services/auth/keycloak.service';
 import { Observable, from, of } from 'rxjs';
-import { catchError, switchMap, map } from 'rxjs/operators';
+import { catchError, switchMap, map, filter, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -24,20 +24,35 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   private checkAuthentication(): Observable<boolean | UrlTree> {
+    return this.keycloakService.isInitializing().pipe(
+      take(1),
+      switchMap(initializing => {
+        console.log('Auth guard - Initialization status:', initializing);
+        if (initializing) {
+          console.log('Auth guard - Waiting for Keycloak initialization...');
+          return this.keycloakService.isInitializing().pipe(
+            filter(init => !init),
+            take(1),
+            switchMap(() => this.checkAuthStatus())
+          );
+        }
+        return this.checkAuthStatus();
+      })
+    );
+  }
+
+  private checkAuthStatus(): Observable<boolean | UrlTree> {
     return this.keycloakService.isAuthenticated().pipe(
+      take(1),
       switchMap(authenticated => {
+        console.log('Auth guard - Authentication status:', authenticated);
         if (authenticated) {
+          console.log('Auth guard - User is authenticated, allowing access');
           return of(true);
         }
-        return from(this.keycloakService.refreshToken()).pipe(
-          map(refreshed => {
-            if (refreshed) {
-              return true;
-            }
-            return this.router.createUrlTree(['/login']);
-          }),
-          catchError(() => of(this.router.createUrlTree(['/login'])))
-        );
+        
+        console.log('Auth guard - User is not authenticated, redirecting to login');
+        return of(this.router.createUrlTree(['/login']));
       })
     );
   }

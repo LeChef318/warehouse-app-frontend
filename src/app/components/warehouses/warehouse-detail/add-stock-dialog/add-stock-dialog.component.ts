@@ -84,7 +84,7 @@ export interface AddStockDialogData {
 export class AddStockDialogComponent implements OnInit {
   selectedCategoryId: number | null = null;
   selectedProductId: number | null = null;
-  quantity: number = 0;
+  quantity = 0;
   categories: Category[] = [];
   products: Product[] = [];
   availableProducts: Product[] = [];

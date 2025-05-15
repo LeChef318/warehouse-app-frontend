@@ -78,7 +78,7 @@ type StockOperation = 'ADD' | 'REMOVE';
   `]
 })
 export class EditStockDialogComponent {
-  amount: number = 1;
+  amount = 1;
   operation: StockOperation = 'ADD';
 
   constructor(
