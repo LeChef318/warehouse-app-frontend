@@ -82,7 +82,7 @@
       mat-raised-button 
       color="primary" 
       type="submit" 
-      [disabled]="loading" 
+      [disabled]="loading || !productForm.valid" 
       (click)="onSubmit()"
     >
       <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>

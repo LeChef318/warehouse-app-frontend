@@ -52,7 +52,7 @@ export class WarehouseDetailComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const warehouseId = params.get('id');
       if (warehouseId) {
-        this.loadWarehouse(Number(warehouseId));
+        this.loadWarehouse(warehouseId);
       } else {
         this.error = 'Warehouse ID not provided';
         this.loading = false;
@@ -60,11 +60,11 @@ export class WarehouseDetailComponent implements OnInit {
     });
   }
   
-  loadWarehouse(id: number): void {
+  loadWarehouse(id: string): void {
     this.loading = true;
     this.error = null;
     
-    this.warehouseService.getWarehouse(id).subscribe({
+    this.warehouseService.getWarehouse(Number(id)).subscribe({
       next: (data) => {
         this.warehouse = data;
         this.loading = false;

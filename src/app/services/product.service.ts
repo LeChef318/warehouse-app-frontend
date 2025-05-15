@@ -4,18 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 export interface Product {
   id: number;
   name: string;
   description: string;
   price: number;
+  categoryId: number;
   categoryName: string;
   stocks: {
     warehouseId: number;
@@ -34,19 +28,8 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getProducts(
-    page: number = 1,
-    pageSize: number = 10,
-    sortBy: string = 'name',
-    sortDirection: 'asc' | 'desc' = 'asc'
-  ): Observable<PaginatedResponse<Product>> {
-    const params = {
-      page: page.toString(),
-      pageSize: pageSize.toString(),
-      sortBy,
-      sortDirection
-    };
-    return this.http.get<PaginatedResponse<Product>>(this.apiUrl, { params });
+  getProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(this.apiUrl);
   }
 
   getProduct(id: number): Observable<Product> {

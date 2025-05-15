@@ -6,10 +6,15 @@ export interface Stock {
   }
   
   export interface Warehouse {
-    id: number;
+    id: string;
     name: string;
     location: string;
     stocks: Stock[];
+    products?: {
+      id: string;
+      name: string;
+      quantity: number;
+    }[];
   }
 
   export interface WarehouseFormData {

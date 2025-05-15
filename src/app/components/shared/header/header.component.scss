@@ -4,28 +4,52 @@
   z-index: 1000;
 }
 
-.app-title {
-  text-decoration: none;
-  color: white;
-  font-size: 1.2rem;
+.toolbar-title {
   margin-left: 8px;
+  font-size: 1.2rem;
 }
 
-.spacer {
+.toolbar-spacer {
   flex: 1 1 auto;
+}
+
+.user-menu-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+}
+
+.username {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .user-menu-button {
   display: flex;
   align-items: center;
+  gap: 4px;
+  color: white;
   
-  .username {
-    margin: 0 4px;
+  mat-icon {
+    margin-right: 4px;
+  }
+  
+  .user-menu-text {
+    font-size: 0.9rem;
   }
 }
 
 @media (max-width: 599px) {
   .username {
     display: none;
+  }
+  
+  .user-menu-text {
+    display: none;
+  }
+  
+  .user-menu-button {
+    padding: 0 8px;
   }
 }

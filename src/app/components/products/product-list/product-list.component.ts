@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +29,6 @@ import { Router } from '@angular/router';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSortModule,
-    MatPaginatorModule,
     MatChipsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -58,13 +56,6 @@ export class ProductListComponent implements OnInit {
   // Search and Filter
   searchTerm: string = '';
   
-  // Pagination
-  totalItems = 0;
-  pageSize = 10;
-  currentPage = 0;
-  pageSizeOptions = [5, 10, 25, 100];
-  pageIndex = 0;
-  
   // Sorting
   currentSort: Sort = { active: 'name', direction: 'asc' };
   
@@ -77,17 +68,11 @@ export class ProductListComponent implements OnInit {
     this.loading = true;
     this.error = null;
     
-    this.productService.getProducts(
-      this.currentPage + 1,
-      this.pageSize,
-      this.currentSort.active,
-      this.currentSort.direction as 'asc' | 'desc'
-    ).subscribe({
-      next: (response) => {
-        this.products = response.items;
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
         this.filteredProducts = [...this.products];
         this.sortedData = [...this.products];
-        this.totalItems = response.total;
         this.loading = false;
       },
       error: (err) => {
@@ -128,8 +113,7 @@ export class ProductListComponent implements OnInit {
   }
   
   getTotalStock(product: Product): number {
-    // Since stock is not part of the Product interface, return 0 for now
-    return 0;
+    return product.stocks.reduce((sum, stock) => sum + stock.quantity, 0);
   }
   
   viewProductDetails(id: string): void {
@@ -141,13 +125,6 @@ export class ProductListComponent implements OnInit {
     this.router.navigate(['/products', id, 'edit']);
   }
   
-  handlePageEvent(event: PageEvent): void {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.currentPage = event.pageIndex;
-    this.loadProducts();
-  }
-  
   formatPrice(price: number): string {
     return new Intl.NumberFormat('de-CH', {
       style: 'currency',
@@ -156,6 +133,6 @@ export class ProductListComponent implements OnInit {
   }
 
   createProduct(): void {
-    this.router.navigate(['/products/new']);
+    this.router.navigate(['/products/create']);
   }
 }

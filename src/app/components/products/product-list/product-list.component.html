@@ -145,15 +145,5 @@
           (click)="viewProductDetails(row.id)"
         ></tr>
       </table>
-      
-      <!-- Pagination -->
-      <mat-paginator
-        [length]="filteredProducts.length"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions"
-        [pageIndex]="pageIndex"
-        (page)="handlePageEvent($event)"
-        aria-label="Select page of products"
-      ></mat-paginator>
     </div>
   </div>

@@ -1,7 +1,7 @@
 // src/app/components/dashboard/dashboard.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,13 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { KeycloakService } from '../../services/auth/keycloak.service';
 import { WarehouseService } from '../../services/warehouse.service';
 import { ProductService } from '../../services/product.service';
-import { Observable } from 'rxjs';
-
-interface Activity {
-  type: string;
-  description: string;
-  timestamp: Date;
-}
+import { Warehouse } from '../../models/warehouse.model';
 
 interface UserInfo {
   name?: string;
@@ -42,6 +36,7 @@ export class DashboardComponent implements OnInit {
   private keycloakService = inject(KeycloakService);
   private warehouseService = inject(WarehouseService);
   private productService = inject(ProductService);
+  private router = inject(Router);
   
   userInfo: UserInfo | null = null;
   loading = false;
@@ -51,85 +46,60 @@ export class DashboardComponent implements OnInit {
   warehouseCount = 0;
   productCount = 0;
   totalStock = 0;
-  
-  // Activity
-  activity: Activity[] = [];
+  warehouses: Warehouse[] = [];
+  isManager = false;
   
   ngOnInit(): void {
     this.loadUserInfo();
-    this.loadStats();
-    this.loadActivity();
+    this.loadWarehouses();
   }
   
   private loadUserInfo(): void {
-    const userInfo = this.keycloakService.getUserInfo();
-    if (userInfo) {
-      this.userInfo = userInfo as UserInfo;
-    }
+    this.userInfo = this.keycloakService.getUserInfo() as UserInfo;
+    this.isManager = this.keycloakService.getUserRoles().includes('manager');
   }
   
-  private loadStats(): void {
+  loadWarehouses(): void {
     this.loading = true;
     this.error = null;
     
-    // Load warehouses
     this.warehouseService.getWarehouses().subscribe({
       next: (warehouses) => {
+        this.warehouses = warehouses;
         this.warehouseCount = warehouses.length;
-        this.totalStock = warehouses.reduce((total, warehouse) => 
-          total + warehouse.stocks.reduce((sum, stock) => sum + stock.quantity, 0), 0);
+        this.calculateStats();
+        this.loading = false;
       },
-      error: (err: Error) => {
-        console.error('Failed to load warehouses:', err);
-        this.error = 'Failed to load warehouse statistics.';
-      }
-    });
-    
-    // Load products
-    this.productService.getProducts().subscribe({
-      next: (products) => {
-        this.productCount = products.items.length;
-      },
-      error: (err: Error) => {
-        console.error('Failed to load products:', err);
-        this.error = 'Failed to load product statistics.';
-      },
-      complete: () => {
+      error: (err) => {
+        this.error = 'Failed to load warehouses. Please try again.';
         this.loading = false;
       }
     });
   }
   
-  loadActivity(): void {
-    this.loading = true;
-    this.error = null;
+  private calculateStats(): void {
+    this.productCount = this.warehouses.reduce((total, warehouse) => 
+      total + warehouse.stocks.length, 0);
     
-    // TODO: Implement activity loading from a service
-    // For now, we'll use mock data
-    this.activity = [
-      {
-        type: 'warehouse',
-        description: 'New warehouse "Main Storage" was created',
-        timestamp: new Date()
-      },
-      {
-        type: 'product',
-        description: 'Product "Widget X" stock was updated',
-        timestamp: new Date(Date.now() - 3600000)
-      }
-    ];
-    
-    this.loading = false;
+    this.totalStock = this.warehouses.reduce((total, warehouse) => 
+      total + warehouse.stocks.reduce((sum: number, stock) => 
+        sum + stock.quantity, 0), 0);
   }
-  
-  getActivityIcon(type: string): string {
-    switch (type) {
-      case 'warehouse':
-        return 'store';
-      case 'product':
-        return 'inventory_2';
-      default:
-        return 'event';
-    }
+
+  getProductCount(warehouse: Warehouse): number {
+    return warehouse.stocks.length;
+  }
+
+  getTotalQuantity(warehouse: Warehouse): number {
+    return warehouse.stocks.reduce((sum: number, stock) => 
+      sum + stock.quantity, 0);
+  }
+
+  viewWarehouse(id: string) {
+    this.router.navigate(['/warehouses', id]);
+  }
+
+  createWarehouse() {
+    this.router.navigate(['/warehouses/new']);
   }
 }

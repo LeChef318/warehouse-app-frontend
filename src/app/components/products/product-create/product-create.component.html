@@ -12,11 +12,10 @@
   </div>
   
   <app-product-form 
-    *ngIf="!error"
     title="Create New Product"
     submitButtonText="Create Product"
     [loading]="loading"
-    [error]="error"
+    [categories]="categories"
     (productSubmit)="onSubmit($event)"
     (cancelRequest)="onCancel()"
   ></app-product-form>

@@ -30,13 +30,18 @@ export class LayoutComponent implements OnInit {
 
   private breakpointObserver = inject(BreakpointObserver)
 
-  isSidebarOpen = true
+  isSidebarOpen = false
   isHandset = false
 
   ngOnInit() {
     this.breakpointObserver.observe([Breakpoints.Handset]).subscribe((result) => {
       this.isHandset = result.matches
-      this.isSidebarOpen = !result.matches
+      // Only auto-open sidebar on desktop if it was previously opened
+      if (!result.matches && this.isSidebarOpen) {
+        this.isSidebarOpen = true
+      } else {
+        this.isSidebarOpen = false
+      }
     })
   }
 

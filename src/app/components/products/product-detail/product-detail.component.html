@@ -41,7 +41,7 @@
           </div>
           <div class="info-row">
             <span class="label">Price:</span>
-            <span class="value">{{ product.price | currency:'CHF' }}</span>
+            <span class="value">{{ formatPrice(product.price) }}</span>
           </div>
         </div>
       </mat-card-content>

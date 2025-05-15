@@ -1,8 +1,30 @@
 <!-- src/app/components/dashboard/dashboard.component.html -->
 <div class="dashboard-container">
-  <div class="welcome-section">
-    <h1 class="mat-headline-4">Welcome to Warehouse Management</h1>
-    <p class="mat-subtitle-1">Manage your warehouses and inventory efficiently</p>
+  <h1 class="dashboard-title">Welcome to Warehouse Management</h1>
+  
+  <!-- Quick Stats -->
+  <div class="quick-stats">
+    <div class="stat-item">
+      <mat-icon>warehouse</mat-icon>
+      <div class="stat-content">
+        <span class="stat-value">{{ warehouseCount }}</span>
+        <span class="stat-label">Warehouses</span>
+      </div>
+    </div>
+    <div class="stat-item">
+      <mat-icon>inventory_2</mat-icon>
+      <div class="stat-content">
+        <span class="stat-value">{{ productCount }}</span>
+        <span class="stat-label">Products</span>
+      </div>
+    </div>
+    <div class="stat-item">
+      <mat-icon>category</mat-icon>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalStock }}</span>
+        <span class="stat-label">Total Items</span>
+      </div>
+    </div>
   </div>
   
   <div class="dashboard-grid">
@@ -23,69 +45,56 @@
       </mat-card-content>
     </mat-card>
     
-    <!-- Quick Stats -->
+    <!-- Warehouses Card -->
     <mat-card class="dashboard-card">
       <mat-card-header>
-        <mat-icon mat-card-avatar>analytics</mat-icon>
-        <mat-card-title>Quick Stats</mat-card-title>
-        <mat-card-subtitle>Overview of your inventory</mat-card-subtitle>
+        <mat-icon mat-card-avatar>warehouse</mat-icon>
+        <mat-card-title>Warehouses</mat-card-title>
+        <mat-card-subtitle>Your warehouse locations</mat-card-subtitle>
       </mat-card-header>
       
       <mat-card-content>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value">{{ warehouseCount }}</span>
-            <span class="stat-label">Warehouses</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ productCount }}</span>
-            <span class="stat-label">Products</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ totalStock }}</span>
-            <span class="stat-label">Total Items</span>
+        <div *ngIf="loading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading warehouses...</p>
+        </div>
+        
+        <div *ngIf="!loading && error" class="error-container">
+          <p class="error-message">{{ error }}</p>
+          <button mat-button color="primary" (click)="loadWarehouses()">
+            <mat-icon>refresh</mat-icon>
+            Try Again
+          </button>
+        </div>
+        
+        <div *ngIf="!loading && !error && warehouses.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">warehouse</mat-icon>
+          <p>No warehouses found</p>
+          <button *ngIf="isManager" mat-raised-button color="primary" (click)="createWarehouse()">
+            <mat-icon>add</mat-icon>
+            Add Your First Warehouse
+          </button>
+        </div>
+        
+        <div *ngIf="!loading && !error && warehouses.length > 0" class="warehouse-list">
+          <div *ngFor="let warehouse of warehouses" class="warehouse-item" (click)="viewWarehouse(warehouse.id)">
+            <div class="warehouse-info">
+              <h3>{{ warehouse.name }}</h3>
+              <p>{{ warehouse.location }}</p>
+            </div>
+            <div class="warehouse-stats">
+              <div class="stats-row">
+                <span class="stat-label">Products</span>
+                <span class="stat-value">{{ getProductCount(warehouse) }}</span>
+              </div>
+              <div class="stats-row">
+                <span class="stat-label">Items</span>
+                <span class="stat-value">{{ getTotalQuantity(warehouse) }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
-  
-  <!-- Recent Activity -->
-  <mat-card class="activity-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>history</mat-icon>
-      <mat-card-title>Recent Activity</mat-card-title>
-      <mat-card-subtitle>Latest updates in your warehouses</mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <div *ngIf="loading" class="loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>Loading activity...</p>
-      </div>
-      
-      <div *ngIf="!loading && error" class="error-container">
-        <p class="error-message">{{ error }}</p>
-        <button mat-button color="primary" (click)="loadActivity()">
-          <mat-icon>refresh</mat-icon>
-          Try Again
-        </button>
-      </div>
-      
-      <div *ngIf="!loading && !error && activity.length === 0" class="empty-state">
-        <mat-icon class="empty-icon">event_busy</mat-icon>
-        <p>No recent activity</p>
-      </div>
-      
-      <div *ngIf="!loading && !error && activity.length > 0" class="activity-list">
-        <div *ngFor="let item of activity" class="activity-item">
-          <mat-icon class="activity-icon">{{ getActivityIcon(item.type) }}</mat-icon>
-          <div class="activity-details">
-            <span class="activity-text">{{ item.description }}</span>
-            <span class="activity-time">{{ item.timestamp | date:'medium' }}</span>
-          </div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
 </div>

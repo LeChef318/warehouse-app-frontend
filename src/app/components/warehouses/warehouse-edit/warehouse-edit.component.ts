@@ -73,7 +73,7 @@ export class WarehouseEditComponent implements OnInit {
     this.submitting = true;
     this.error = null;
     
-    this.warehouseService.updateWarehouse(this.warehouse.id, formData).subscribe({
+    this.warehouseService.updateWarehouse(Number(this.warehouse.id), formData).subscribe({
       next: (warehouse) => {
         this.submitting = false;
         this.router.navigate(['/warehouses', warehouse.id]);

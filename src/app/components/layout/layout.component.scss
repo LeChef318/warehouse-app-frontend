@@ -6,6 +6,7 @@
 
 .sidenav-container {
   flex: 1;
+  height: 100%;
 }
 
 .sidenav {
@@ -13,7 +14,13 @@
   border-right: none;
 }
 
+mat-sidenav-content {
+  display: flex;
+  flex-direction: column;
+}
+
 .content-container {
+  flex: 1;
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;

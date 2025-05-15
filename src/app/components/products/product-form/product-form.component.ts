@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,7 +26,7 @@ import { Category } from '../../../models/category.model';
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']
 })
-export class ProductFormComponent implements OnInit {
+export class ProductFormComponent implements OnInit, OnChanges {
   @Input() title = 'Product Form';
   @Input() submitButtonText = 'Submit';
   @Input() product: Product | null = null;
@@ -50,7 +50,24 @@ export class ProductFormComponent implements OnInit {
   
   ngOnInit(): void {
     if (this.product) {
-      this.productForm.patchValue(this.product);
+      this.updateForm();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['product'] && this.product) {
+      this.updateForm();
+    }
+  }
+
+  private updateForm(): void {
+    if (this.product) {
+      this.productForm.patchValue({
+        name: this.product.name,
+        description: this.product.description,
+        price: this.product.price,
+        categoryId: this.product.categoryId
+      });
     }
   }
   

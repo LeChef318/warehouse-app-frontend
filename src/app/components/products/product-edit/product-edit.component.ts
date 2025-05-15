@@ -6,6 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProductFormComponent } from '../product-form/product-form.component';
 import { ProductService, Product } from '../../../services/product.service';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
+import { CategoryService } from '../../../services/category.service';
+import { Category } from '../../../models/category.model';
 
 @Component({
   selector: 'app-product-edit',
@@ -24,9 +26,11 @@ export class ProductEditComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
   private keycloakService = inject(KeycloakService);
   
   product: Product | null = null;
+  categories: Category[] = [];
   loading = false;
   error: string | null = null;
   
@@ -46,6 +50,8 @@ export class ProductEditComponent implements OnInit {
     }
     
     this.loading = true;
+    this.loadCategories();
+    
     this.productService.getProduct(Number(id)).subscribe({
       next: (product) => {
         this.product = product;
@@ -54,6 +60,17 @@ export class ProductEditComponent implements OnInit {
       error: (err) => {
         this.error = 'Failed to load product details. Please try again.';
         this.loading = false;
+      }
+    });
+  }
+
+  private loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (err) => {
+        this.error = 'Failed to load categories. Please try again.';
       }
     });
   }
