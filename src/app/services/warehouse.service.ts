@@ -2,21 +2,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import { Warehouse } from '../models/warehouse.model';
+import { Warehouse, WarehouseFormData } from '../models/warehouse.model';
 import { environment } from '../../environments/environment';
-
-export interface WarehouseFormData {
-  name: string;
-  location: string;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class WarehouseService {
+  private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/warehouses`;
-
-  constructor(private http: HttpClient) { }
 
   getWarehouses(): Observable<Warehouse[]> {
     return this.http.get<Warehouse[]>(this.apiUrl)
@@ -56,5 +50,32 @@ export class WarehouseService {
           return throwError(() => new Error('Failed to update warehouse. Please try again later.'));
         })
       );
+  }
+
+  addStock(warehouseId: number, productId: number, quantity: number): Observable<Warehouse> {
+    return this.http.post<Warehouse>(`${environment.apiUrl}/stocks`, {
+      warehouseId,
+      productId,
+      quantity
+    }).pipe(
+      catchError(error => {
+        console.error(`Error adding stock to warehouse ${warehouseId}`, error);
+        return throwError(() => new Error('Failed to add stock. Please try again later.'));
+      })
+    );
+  }
+
+  updateStock(warehouseId: number, productId: number, quantity: number, operation: 'ADD' | 'REMOVE'): Observable<Warehouse> {
+    return this.http.put<Warehouse>(`${environment.apiUrl}/stocks`, {
+      warehouseId,
+      productId,
+      quantity,
+      operation
+    }).pipe(
+      catchError(error => {
+        console.error(`Error updating stock in warehouse ${warehouseId}`, error);
+        return throwError(() => new Error('Failed to update stock. Please try again later.'));
+      })
+    );
   }
 }

@@ -5,9 +5,9 @@ import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { WarehouseFormComponent } from '../warehouse-form/warehouse-form.component';
-import { WarehouseService, WarehouseFormData } from '../../../services/warehouse.service';
+import { WarehouseService } from '../../../services/warehouse.service';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
-import { Warehouse } from '../../../models/warehouse.model';
+import { WarehouseFormData } from '../../../models/warehouse.model';
 
 @Component({
   selector: 'app-warehouse-create',
@@ -47,7 +47,7 @@ export class WarehouseCreateComponent {
         this.loading = false;
         this.router.navigate(['/warehouses', warehouse.id]);
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to create warehouse. Please try again.';
         this.loading = false;
       }

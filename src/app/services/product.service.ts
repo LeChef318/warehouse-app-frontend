@@ -3,22 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  categoryId: number;
-  categoryName: string;
-  stocks: {
-    warehouseId: number;
-    warehouseName: string;
-    quantity: number;
-  }[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { Product } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'

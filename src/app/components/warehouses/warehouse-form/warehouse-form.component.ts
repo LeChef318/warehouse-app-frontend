@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { Warehouse } from '../../../models/warehouse.model';
-import { WarehouseFormData } from '../../../services/warehouse.service';
+import { WarehouseFormData } from '../../../models/warehouse.model';
 
 @Component({
   selector: 'app-warehouse-form',

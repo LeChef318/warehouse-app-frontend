@@ -8,9 +8,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WarehouseFormComponent } from '../warehouse-form/warehouse-form.component';
-import { WarehouseService, WarehouseFormData } from '../../../services/warehouse.service';
+import { WarehouseService } from '../../../services/warehouse.service';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
 import { Warehouse } from '../../../models/warehouse.model';
+import { WarehouseFormData } from '../../../models/warehouse.model';
 
 @Component({
   selector: 'app-warehouse-edit',
@@ -60,7 +61,7 @@ export class WarehouseEditComponent implements OnInit {
         this.warehouse = warehouse;
         this.loadingWarehouse = false;
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to load warehouse. Please try again.';
         this.loadingWarehouse = false;
       }
@@ -78,7 +79,7 @@ export class WarehouseEditComponent implements OnInit {
         this.submitting = false;
         this.router.navigate(['/warehouses', warehouse.id]);
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to update warehouse. Please try again.';
         this.submitting = false;
       }

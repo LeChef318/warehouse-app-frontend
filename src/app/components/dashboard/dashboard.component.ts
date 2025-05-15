@@ -70,7 +70,7 @@ export class DashboardComponent implements OnInit {
         this.calculateStats();
         this.loading = false;
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to load warehouses. Please try again.';
         this.loading = false;
       }

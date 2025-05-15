@@ -115,6 +115,19 @@
   }
 }
 
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .warehouse-header {

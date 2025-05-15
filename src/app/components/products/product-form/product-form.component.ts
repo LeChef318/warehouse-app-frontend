@@ -7,7 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
-import { Product } from '../../../services/product.service';
+import { MatIconModule } from '@angular/material/icon';
+import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 
 @Component({
@@ -21,7 +22,8 @@ import { Category } from '../../../models/category.model';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    MatSelectModule
+    MatSelectModule,
+    MatIconModule
   ],
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']

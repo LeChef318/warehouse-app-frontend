@@ -77,15 +77,17 @@
     
     <!-- Stocks/Products Section -->
     <div class="stocks-section">
-      <h2 class="mat-headline-6">Products in this Warehouse</h2>
+      <div class="section-header">
+        <h2 class="mat-headline-6">Products in this Warehouse</h2>
+        <button *ngIf="isManager" mat-raised-button color="primary" (click)="openAddStockDialog()">
+          <mat-icon>add</mat-icon>
+          Add Product
+        </button>
+      </div>
       
       <div *ngIf="warehouse.stocks.length === 0" class="empty-stocks">
         <mat-icon class="empty-icon">inventory_2</mat-icon>
         <p>No products in this warehouse</p>
-        <button *ngIf="isManager" mat-raised-button color="primary">
-          <mat-icon>add</mat-icon>
-          Add Product
-        </button>
       </div>
       
       <table *ngIf="warehouse.stocks.length > 0" mat-table [dataSource]="warehouse.stocks" class="stocks-table">
@@ -113,15 +115,26 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let stock">
-            <button 
-              *ngIf="isManager"
-              mat-icon-button 
-              color="accent" 
-              matTooltip="Edit stock"
-              (click)="$event.stopPropagation()"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
+            <div class="action-buttons">
+              <button 
+                *ngIf="isManager"
+                mat-icon-button 
+                color="accent" 
+                matTooltip="Edit stock"
+                (click)="openEditStockDialog(stock); $event.stopPropagation()"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button 
+                *ngIf="isManager"
+                mat-icon-button 
+                color="primary" 
+                matTooltip="Transfer stock"
+                (click)="openTransferDialog(stock); $event.stopPropagation()"
+              >
+                <mat-icon>swap_horiz</mat-icon>
+              </button>
+            </div>
           </td>
         </ng-container>
         

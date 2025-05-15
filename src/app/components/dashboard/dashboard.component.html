@@ -77,7 +77,12 @@
         </div>
         
         <div *ngIf="!loading && !error && warehouses.length > 0" class="warehouse-list">
-          <div *ngFor="let warehouse of warehouses" class="warehouse-item" (click)="viewWarehouse(warehouse.id)">
+          <div *ngFor="let warehouse of warehouses" 
+               class="warehouse-item" 
+               (click)="viewWarehouse(warehouse.id)"
+               (keyup.enter)="viewWarehouse(warehouse.id)"
+               tabindex="0"
+               role="button">
             <div class="warehouse-info">
               <h3>{{ warehouse.name }}</h3>
               <p>{{ warehouse.location }}</p>

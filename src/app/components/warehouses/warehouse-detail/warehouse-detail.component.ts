@@ -10,9 +10,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { WarehouseService } from '../../../services/warehouse.service';
 import { Warehouse } from '../../../models/warehouse.model';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
+import { StockTransferDialogComponent } from './stock-transfer-dialog/stock-transfer-dialog.component';
+import { AddStockDialogComponent } from './add-stock-dialog/add-stock-dialog.component';
+import { EditStockDialogComponent } from './edit-stock-dialog/edit-stock-dialog.component';
 
 @Component({
   selector: 'app-warehouse-detail',
@@ -27,7 +31,8 @@ import { KeycloakService } from '../../../services/auth/keycloak.service';
     MatTableModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule
   ],
   templateUrl: './warehouse-detail.component.html',
   styleUrls: ['./warehouse-detail.component.scss']
@@ -37,6 +42,7 @@ export class WarehouseDetailComponent implements OnInit {
   private router = inject(Router);
   private warehouseService = inject(WarehouseService);
   private keycloakService = inject(KeycloakService);
+  private dialog = inject(MatDialog);
   
   warehouse: Warehouse | null = null;
   loading = true;
@@ -94,5 +100,90 @@ export class WarehouseDetailComponent implements OnInit {
         queryParams: { message: 'You need manager permissions to edit warehouses.' }
       });
     }
+  }
+
+  openTransferDialog(stock: { productId: number; productName: string; quantity: number }): void {
+    if (!this.isManager || !this.warehouse) return;
+
+    const dialogRef = this.dialog.open(StockTransferDialogComponent, {
+      width: '400px',
+      data: {
+        productId: stock.productId,
+        productName: stock.productName,
+        sourceWarehouseId: this.warehouse.id,
+        sourceWarehouseName: this.warehouse.name,
+        quantity: stock.quantity
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadWarehouse(this.warehouse!.id.toString());
+      }
+    });
+  }
+
+  openEditStockDialog(stock: { productId: number; productName: string; quantity: number }): void {
+    if (!this.isManager || !this.warehouse) return;
+
+    const dialogRef = this.dialog.open(EditStockDialogComponent, {
+      width: '400px',
+      data: {
+        warehouseId: this.warehouse.id,
+        productId: stock.productId,
+        productName: stock.productName,
+        currentQuantity: stock.quantity
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.warehouseService.updateStock(
+          Number(this.warehouse!.id),
+          result.productId,
+          result.quantity,
+          result.operation
+        ).subscribe({
+          next: () => {
+            this.loadWarehouse(this.warehouse!.id.toString());
+          },
+          error: (error) => {
+            console.error('Error updating stock:', error);
+            // TODO: Show error message to user
+          }
+        });
+      }
+    });
+  }
+
+  openAddStockDialog(): void {
+    if (!this.isManager || !this.warehouse) return;
+
+    const dialogRef = this.dialog.open(AddStockDialogComponent, {
+      width: '400px',
+      data: {
+        warehouseId: this.warehouse.id,
+        warehouseName: this.warehouse.name,
+        currentStocks: this.warehouse.stocks.map(stock => ({ productId: stock.productId }))
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.warehouseService.addStock(
+          Number(this.warehouse!.id),
+          result.productId,
+          result.quantity
+        ).subscribe({
+          next: () => {
+            this.loadWarehouse(this.warehouse!.id.toString());
+          },
+          error: (error) => {
+            console.error('Error adding stock:', error);
+            // TODO: Show error message to user
+          }
+        });
+      }
+    });
   }
 }

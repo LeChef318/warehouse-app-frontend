@@ -134,6 +134,16 @@
             >
               <mat-icon>edit</mat-icon>
             </button>
+
+            <button 
+              *ngIf="isManager && getTotalStock(product) === 0"
+              mat-icon-button 
+              color="warn" 
+              matTooltip="Delete product"
+              (click)="deleteProduct(product.id, $event)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
           </td>
         </ng-container>
         

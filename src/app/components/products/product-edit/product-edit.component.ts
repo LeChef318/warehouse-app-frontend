@@ -4,7 +4,8 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ProductFormComponent } from '../product-form/product-form.component';
-import { ProductService, Product } from '../../../services/product.service';
+import { ProductService } from '../../../services/product.service';
+import { Product } from '../../../models/product.model';
 import { KeycloakService } from '../../../services/auth/keycloak.service';
 import { CategoryService } from '../../../services/category.service';
 import { Category } from '../../../models/category.model';
@@ -57,7 +58,7 @@ export class ProductEditComponent implements OnInit {
         this.product = product;
         this.loading = false;
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to load product details. Please try again.';
         this.loading = false;
       }
@@ -69,7 +70,7 @@ export class ProductEditComponent implements OnInit {
       next: (categories) => {
         this.categories = categories;
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to load categories. Please try again.';
       }
     });
@@ -84,7 +85,7 @@ export class ProductEditComponent implements OnInit {
         this.loading = false;
         this.router.navigate(['/products', product.id]);
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Failed to update product. Please try again.';
         this.loading = false;
       }
