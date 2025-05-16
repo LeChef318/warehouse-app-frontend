@@ -121,7 +121,7 @@ describe('CategoryService', () => {
       { id: 1, name: 'Product 1', categoryId: 1 },
       { id: 2, name: 'Product 2', categoryId: 1 }
     ];
-    let result: any[] | undefined;
+    let result: { id: number; name: string; categoryId: number }[] | undefined;
 
     service.getProductsByCategory(1).subscribe(products => {
       result = products;
