@@ -26,6 +26,11 @@
       <span matListItemTitle *ngIf="isOpen">Products</span>
     </a>
     
+    <a mat-list-item routerLink="/categories" routerLinkActive="active">
+      <mat-icon matListItemIcon>category</mat-icon>
+      <span matListItemTitle *ngIf="isOpen">Categories</span>
+    </a>
+    
     <mat-divider></mat-divider>
     
     <!-- Admin section - only visible to managers -->
@@ -33,11 +38,6 @@
       <div class="section-header" *ngIf="isOpen">
         <span class="section-title">Administration</span>
       </div>
-      
-      <a mat-list-item routerLink="/categories" routerLinkActive="active">
-        <mat-icon matListItemIcon>category</mat-icon>
-        <span matListItemTitle *ngIf="isOpen">Categories</span>
-      </a>
       
       <a mat-list-item routerLink="/users" routerLinkActive="active">
         <mat-icon matListItemIcon>people</mat-icon>

@@ -35,10 +35,6 @@ export class AccessDeniedComponent implements OnInit {
     });
   }
   
-  goBack(): void {
-    window.history.back();
-  }
-  
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
