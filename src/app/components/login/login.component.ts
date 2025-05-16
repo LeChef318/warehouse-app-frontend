@@ -39,4 +39,8 @@ export class LoginComponent implements OnInit {
     this.keycloakService.login();
     // Note: Loading state will be handled by the redirect
   }
+
+  goToRegistration(): void {
+    this.router.navigate(['/register']);
+  }
 }

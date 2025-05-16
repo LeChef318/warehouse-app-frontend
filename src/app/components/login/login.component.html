@@ -25,6 +25,17 @@
           <span *ngIf="!loading">Log In</span>
         </button>
       </div>
+      <div class="register-container">
+        <button 
+          mat-button 
+          color="accent" 
+          (click)="goToRegistration()" 
+          [disabled]="loading"
+        >
+          <mat-icon>person_add</mat-icon>
+          <span>Register</span>
+        </button>
+      </div>
     </mat-card-actions>
   </mat-card>
 </div>

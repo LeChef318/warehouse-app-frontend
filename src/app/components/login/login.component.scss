@@ -80,7 +80,14 @@ mat-card-header {
 .actions-container {
   display: flex;
   justify-content: center;
-  padding: 0 16px 24px;
+  padding: 0 16px 16px;
+  width: 100%;
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  padding: 0 32px 24px;
   width: 100%;
 }
 
@@ -92,12 +99,24 @@ mat-card-actions {
   padding: 0;
   margin: 0;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 button[mat-raised-button] {
-  width: 100%;
+  width: 80%;
   height: 48px;
   font-size: 16px;
+  
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+button[mat-button] {
+  width: 80%;
+  height: 40px;
+  font-size: 14px;
   
   mat-icon {
     margin-right: 8px;
