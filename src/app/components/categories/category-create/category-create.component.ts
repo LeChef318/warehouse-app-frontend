@@ -37,7 +37,7 @@ export class CategoryCreateComponent {
   private snackBar = inject(MatSnackBar);
   
   categoryForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.maxLength(100)]]
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]]
   });
   
   submitting = false;

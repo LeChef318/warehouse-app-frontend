@@ -16,6 +16,7 @@ import { WarehouseService } from '../../../services/warehouse.service';
 import { StockDialogComponent } from '../../shared/stock-dialog/stock-dialog.component';
 import { EditStockDialogComponent } from '../../warehouses/warehouse-detail/edit-stock-dialog/edit-stock-dialog.component';
 import { Stock } from '../../../models/stock.model';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-product-detail',
@@ -78,19 +79,31 @@ export class ProductDetailComponent implements OnInit {
   }
   
   onDelete(): void {
-    if (confirm('Are you sure you want to delete this product?')) {
-      this.loading = true;
-      this.productService.deleteProduct(this.product!.id).subscribe({
-        next: () => {
-          this.loading = false;
-          this.router.navigate(['/products']);
-        },
-        error: () => {
-          this.error = 'Failed to delete product. Please try again.';
-          this.loading = false;
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Product',
+        message: 'Are you sure you want to delete this product?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loading = true;
+        this.productService.deleteProduct(this.product!.id).subscribe({
+          next: () => {
+            this.loading = false;
+            this.router.navigate(['/products']);
+          },
+          error: () => {
+            this.error = 'Failed to delete product. Please try again.';
+            this.loading = false;
+          }
+        });
+      }
+    });
   }
 
   addStock(): void {

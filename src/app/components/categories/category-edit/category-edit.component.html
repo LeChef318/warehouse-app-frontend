@@ -28,8 +28,11 @@
             <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
               Name is required
             </mat-error>
+            <mat-error *ngIf="categoryForm.get('name')?.hasError('minlength')">
+              Name must be at least 2 characters long
+            </mat-error>
             <mat-error *ngIf="categoryForm.get('name')?.hasError('maxlength')">
-              Name cannot exceed 100 characters
+              Name cannot exceed 50 characters
             </mat-error>
           </mat-form-field>
         </div>

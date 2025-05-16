@@ -18,6 +18,9 @@
         <mat-error *ngIf="hasError('name', 'required')">
           Name is required
         </mat-error>
+        <mat-error *ngIf="hasError('name', 'minlength')">
+          Name must be at least 2 characters
+        </mat-error>
         <mat-error *ngIf="hasError('name', 'maxlength')">
           Name cannot exceed 100 characters
         </mat-error>
@@ -29,6 +32,9 @@
         <input matInput formControlName="location" placeholder="Enter warehouse location">
         <mat-error *ngIf="hasError('location', 'required')">
           Location is required
+        </mat-error>
+        <mat-error *ngIf="hasError('location', 'minlength')">
+          Location must be at least 2 characters
         </mat-error>
         <mat-error *ngIf="hasError('location', 'maxlength')">
           Location cannot exceed 200 characters

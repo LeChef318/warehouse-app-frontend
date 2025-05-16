@@ -43,9 +43,9 @@ export class ProductFormComponent implements OnInit, OnChanges {
   
   constructor(private fb: FormBuilder) {
     this.productForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(100)]],
-      description: ['', [Validators.required, Validators.maxLength(500)]],
-      price: [0, [Validators.required, Validators.min(0)]],
+      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      description: ['', [Validators.required, Validators.maxLength(1000)]],
+      price: [0, [Validators.required, Validators.min(0.01)]],
       categoryId: ['', Validators.required]
     });
   }

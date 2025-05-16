@@ -47,8 +47,8 @@ export class WarehouseFormComponent implements OnInit {
   
   initForm(): void {
     this.warehouseForm = this.fb.group({
-      name: [this.warehouse?.name || '', [Validators.required, Validators.maxLength(100)]],
-      location: [this.warehouse?.location || '', [Validators.required, Validators.maxLength(200)]]
+      name: [this.warehouse?.name || '', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      location: [this.warehouse?.location || '', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]]
     });
   }
   
